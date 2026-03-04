@@ -1,0 +1,108 @@
+{
+  "projectType": "saas",
+  "projectName": "Jasper Pet Shop",
+  "projectDescription": "Luxury pet furniture e-commerce platform built with React and TypeScript",
+  "theme": "almond",
+  "primaryColor": "#f1d262",
+  "lightColor": "#7c6c34",
+  "darkColor": "#19160b",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/product-catalog",
+              "features/shopping-cart",
+              "features/routing",
+              "features/animations"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "development/project-structure",
+              "development/styling",
+              "development/state-management",
+              "development/building"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "Layout",
+            "pages": [
+              "components/navbar",
+              "components/footer",
+              "components/hero"
+            ]
+          },
+          {
+            "group": "Product",
+            "pages": [
+              "components/product-card",
+              "components/products",
+              "components/cart-drawer"
+            ]
+          },
+          {
+            "group": "Sections",
+            "pages": [
+              "components/features",
+              "components/about",
+              "components/social-section",
+              "components/cta"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Context",
+            "pages": [
+              "api/cart-context"
+            ]
+          },
+          {
+            "group": "Data Types",
+            "pages": [
+              "api/product-types",
+              "api/cart-types"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Product catalog with size variants",
+    "Shopping cart with localStorage persistence",
+    "Responsive design with TailwindCSS",
+    "Smooth animations with AOS and Framer Motion",
+    "React Context for state management",
+    "Client-side routing with React Router"
+  ],
+  "publicApiSurface": [
+    "CartProvider",
+    "useCart",
+    "Product",
+    "CartItem",
+    "ProductVariant",
+    "products array"
+  ]
+}
