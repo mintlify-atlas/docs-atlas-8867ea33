@@ -1,0 +1,484 @@
+---
+title: 'Building & Deployment'
+description: 'Build configuration, optimization, and deployment guide for Jasper Pet Shop'
+---
+
+## Overview
+
+Jasper Pet Shop uses Vite for building and bundling, providing fast builds and optimal production bundles with code splitting, minification, and asset optimization.
+
+## Build Process
+
+### Development Build
+
+Start the development server with hot module replacement:
+
+```bash
+npm run dev
+```
+
+This starts Vite's development server at `http://localhost:5173` with:
+- Hot Module Replacement (HMR)
+- Fast refresh for React components
+- Source maps for debugging
+- Instant server start
+
+<Note>
+  Vite uses native ESM in development, making server start nearly instant regardless of application size.
+</Note>
+
+### Production Build
+
+Create an optimized production build:
+
+```bash
+npm run build
+```
+
+This command:
+1. Runs TypeScript compiler (`tsc -b`) to check types
+2. Bundles and optimizes with Vite
+3. Outputs to `/dist` directory
+
+<Steps>
+  <Step title="TypeScript Compilation">
+    The build first runs `tsc -b` to ensure no type errors exist:
+    
+    ```json package.json
+    {
+      "scripts": {
+        "build": "tsc -b && vite build"
+      }
+    }
+    ```
+  </Step>
+  
+  <Step title="Asset Bundling">
+    Vite bundles all JavaScript, CSS, and assets with:
+    - Code splitting for optimal loading
+    - Minification and compression
+    - Asset hashing for cache busting
+  </Step>
+  
+  <Step title="Output Generation">
+    The final build is output to the `/dist` directory:
+    
+    ```
+    dist/
+    ├── assets/
+    │   ├── index-[hash].js
+    │   ├── index-[hash].css
+    │   └── [images]-[hash].jpg
+    └── index.html
+    ```
+  </Step>
+</Steps>
+
+## Build Configuration
+
+### Vite Config
+
+The build is configured in `vite.config.ts`:
+
+```typescript vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+})
+```
+
+### TypeScript Config
+
+TypeScript compilation is controlled by `tsconfig.app.json`:
+
+```json tsconfig.app.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+<Tip>
+  The `noEmit: true` option means TypeScript only checks types without generating files. Vite handles the transpilation.
+</Tip>
+
+## Build Optimization
+
+### Code Splitting
+
+Vite automatically code-splits your application:
+
+```typescript
+// Automatic route-based splitting
+import { lazy, Suspense } from 'react';
+
+const Catalog = lazy(() => import('./pages/Catalog'));
+
+function App() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <Routes>
+                <Route path="/catalogo" element={<Catalog />} />
+            </Routes>
+        </Suspense>
+    );
+}
+```
+
+### Asset Optimization
+
+<Tabs>
+  <Tab title="Images">
+    Vite optimizes images automatically:
+    
+    ```typescript
+    // Import as URL
+    import logo from './assets/logo.jpg'
+    
+    // Use in component
+    <img src={logo} alt="Logo" />
+    ```
+    
+    Benefits:
+    - Automatic hashing for cache busting
+    - Inlined for small images (less than 4KB)
+    - Optimized file names
+  </Tab>
+  
+  <Tab title="CSS">
+    TailwindCSS is automatically purged and minified:
+    
+    - Unused classes removed in production
+    - CSS minified and compressed
+    - Critical CSS can be inlined
+  </Tab>
+  
+  <Tab title="JavaScript">
+    JavaScript bundles are optimized:
+    
+    - Tree shaking removes unused code
+    - Minification with Terser
+    - Modern ES2022 syntax
+    - Gzip/Brotli ready
+  </Tab>
+</Tabs>
+
+### Bundle Analysis
+
+Analyze your bundle size:
+
+```bash
+npm install --save-dev rollup-plugin-visualizer
+```
+
+```typescript vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { visualizer } from 'rollup-plugin-visualizer'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    visualizer({ open: true })
+  ],
+})
+```
+
+Run build to see bundle visualization:
+
+```bash
+npm run build
+```
+
+## Preview Build
+
+Test the production build locally:
+
+```bash
+npm run preview
+```
+
+This serves the `/dist` directory at `http://localhost:4173` to verify:
+- Production bundle works correctly
+- Routes function properly
+- Assets load as expected
+
+<Warning>
+  The preview server is for local testing only. Do not use it for production hosting.
+</Warning>
+
+## Deployment
+
+### Static Hosting
+
+Jasper Pet Shop can be deployed to any static hosting provider:
+
+<Tabs>
+  <Tab title="Vercel">
+    Deploy with zero configuration:
+    
+    ```bash
+    npm install -g vercel
+    vercel
+    ```
+    
+    Or connect your GitHub repository in Vercel dashboard.
+    
+    Vercel automatically detects Vite projects and configures:
+    - Build command: `npm run build`
+    - Output directory: `dist`
+    - Install command: `npm install`
+  </Tab>
+  
+  <Tab title="Netlify">
+    Deploy via Netlify CLI or dashboard:
+    
+    ```bash
+    npm install -g netlify-cli
+    netlify deploy --prod
+    ```
+    
+    Configuration (`netlify.toml`):
+    
+    ```toml
+    [build]
+      command = "npm run build"
+      publish = "dist"
+    
+    [[redirects]]
+      from = "/*"
+      to = "/index.html"
+      status = 200
+    ```
+  </Tab>
+  
+  <Tab title="GitHub Pages">
+    Add GitHub Actions workflow (`.github/workflows/deploy.yml`):
+    
+    ```yaml
+    name: Deploy
+    on:
+      push:
+        branches: [main]
+    
+    jobs:
+      deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - uses: actions/setup-node@v3
+            with:
+              node-version: 18
+          - run: npm install
+          - run: npm run build
+          - uses: peaceiris/actions-gh-pages@v3
+            with:
+              github_token: ${{ secrets.GITHUB_TOKEN }}
+              publish_dir: ./dist
+    ```
+    
+    Update `vite.config.ts` with base path:
+    
+    ```typescript
+    export default defineConfig({
+      base: '/jasperpetshop/',  // Your repo name
+      plugins: [react(), tailwindcss()],
+    })
+    ```
+  </Tab>
+  
+  <Tab title="AWS S3">
+    Build and upload to S3:
+    
+    ```bash
+    npm run build
+    aws s3 sync dist/ s3://your-bucket-name --delete
+    ```
+    
+    Configure bucket for static hosting:
+    - Enable static website hosting
+    - Set index document to `index.html`
+    - Set error document to `index.html` (for SPA routing)
+  </Tab>
+</Tabs>
+
+### Routing Configuration
+
+Since this is a Single Page Application (SPA), configure your host to redirect all requests to `index.html`:
+
+<CodeGroup>
+
+```toml Netlify
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+```apache Apache (.htaccess)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+```
+
+```nginx Nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+</CodeGroup>
+
+## Environment Variables
+
+Manage environment-specific configuration:
+
+```bash .env.production
+VITE_WHATSAPP_NUMBER=51903433063
+VITE_BUSINESS_NAME=JASPERPETSHOP
+VITE_API_URL=https://api.example.com
+```
+
+Access in code:
+
+```typescript
+const phoneNumber = import.meta.env.VITE_WHATSAPP_NUMBER;
+const apiUrl = import.meta.env.VITE_API_URL;
+```
+
+<Note>
+  Environment variables must be prefixed with `VITE_` to be exposed to your application.
+</Note>
+
+## Performance Checklist
+
+<Steps>
+  <Step title="Enable Compression">
+    Configure your hosting provider to serve gzip/brotli compressed assets.
+  </Step>
+  
+  <Step title="Set Cache Headers">
+    Cache static assets with long expiration:
+    
+    ```nginx
+    location /assets/ {
+      expires 1y;
+      add_header Cache-Control "public, immutable";
+    }
+    ```
+  </Step>
+  
+  <Step title="Use CDN">
+    Serve assets from a CDN for faster global delivery.
+  </Step>
+  
+  <Step title="Optimize Images">
+    Use WebP format and responsive images:
+    
+    ```typescript
+    <img 
+      src="image.webp" 
+      srcSet="image-320.webp 320w, image-640.webp 640w"
+      alt="Product"
+    />
+    ```
+  </Step>
+  
+  <Step title="Lazy Load Routes">
+    Use React.lazy for route-based code splitting.
+  </Step>
+</Steps>
+
+## Build Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="TypeScript errors during build">
+    Run type checking separately:
+    
+    ```bash
+    npm run lint
+    tsc --noEmit
+    ```
+    
+    Fix all TypeScript errors before building.
+  </Accordion>
+  
+  <Accordion title="Out of memory errors">
+    Increase Node.js memory limit:
+    
+    ```json package.json
+    {
+      "scripts": {
+        "build": "NODE_OPTIONS='--max-old-space-size=4096' vite build"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Assets not loading in production">
+    Check base path configuration in `vite.config.ts`:
+    
+    ```typescript
+    export default defineConfig({
+      base: '/',  // or '/subdirectory/' for subfolder deployment
+    })
+    ```
+  </Accordion>
+  
+  <Accordion title="Routing not working after deployment">
+    Ensure your hosting provider redirects all requests to `index.html` for SPA routing.
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring & Analytics
+
+Add analytics to track performance:
+
+```typescript src/App.tsx
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+function App() {
+    const location = useLocation();
+    
+    useEffect(() => {
+        // Track page views
+        if (window.gtag) {
+            window.gtag('config', 'GA_MEASUREMENT_ID', {
+                page_path: location.pathname,
+            });
+        }
+    }, [location]);
+    
+    return (
+        // App content
+    );
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Project Structure" icon="folder-tree" href="/development/project-structure">
+    Understand the codebase organization
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get started with development
+  </Card>
+</CardGroup>

@@ -1,0 +1,356 @@
+---
+title: 'CartDrawer'
+description: 'Sliding cart drawer with item management and WhatsApp checkout integration'
+---
+
+## Overview
+
+The `CartDrawer` component provides a full-featured shopping cart interface that slides in from the right side of the screen. It includes cart item management, quantity updates, and WhatsApp checkout integration with smooth animations powered by Framer Motion.
+
+## Import
+
+```tsx
+import { CartDrawer } from '../components/CartDrawer';
+```
+
+## Usage
+
+```tsx
+import { CartDrawer } from './components/CartDrawer';
+
+function App() {
+  return (
+    <>
+      {/* Your app content */}
+      <CartDrawer /> {/* Place at root level */}
+    </>
+  );
+}
+```
+
+<Info>
+  The CartDrawer should be placed at the root level of your app so it can overlay all content. It's controlled via the CartContext.
+</Info>
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Smooth Animations" icon="wand-magic-sparkles">
+    Framer Motion powered slide-in/out transitions
+  </Card>
+  <Card title="Item Management" icon="list-check">
+    Update quantities or remove items easily
+  </Card>
+  <Card title="WhatsApp Checkout" icon="whatsapp">
+    Direct checkout through WhatsApp with formatted message
+  </Card>
+  <Card title="Empty State" icon="bag-shopping">
+    Helpful empty cart state with CTA
+  </Card>
+</CardGroup>
+
+## Cart Context Integration
+
+The drawer uses the `useCart` hook to access cart state and actions:
+
+```tsx
+const { 
+  cartItems,        // Array of cart items
+  isCartOpen,       // Controls drawer visibility
+  setIsCartOpen,    // Function to open/close drawer
+  updateQuantity,   // Update item quantity
+  removeFromCart,   // Remove item from cart
+  cartTotal,        // Total price
+  cartCount,        // Total item count
+  clearCart         // Clear all items
+} = useCart();
+```
+
+## Component Structure
+
+### Animation Wrapper
+
+The component uses Framer Motion's `AnimatePresence` for mount/unmount animations:
+
+```tsx
+<AnimatePresence>
+  {isCartOpen && (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setIsCartOpen(false)}
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
+      />
+
+      {/* Drawer */}
+      <motion.div
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        className="fixed top-0 right-0 h-full w-full max-w-md 
+                   bg-white z-[70]"
+      >
+        {/* Drawer content */}
+      </motion.div>
+    </>
+  )}
+</AnimatePresence>
+```
+
+### Drawer Layout
+
+The drawer is divided into three main sections:
+
+<Steps>
+  <Step title="Header">
+    Sticky header with cart icon, item count, and close button
+  </Step>
+  <Step title="Items List">
+    Scrollable area displaying all cart items
+  </Step>
+  <Step title="Footer">
+    Sticky footer with total and checkout button (only shown when cart has items)
+  </Step>
+</Steps>
+
+## Cart Item Display
+
+Each cart item shows:
+
+```tsx
+<div key={`${item.id}-${item.selectedSize}`} className="flex gap-4">
+  {/* Product Image */}
+  <div className="w-24 h-24 rounded-2xl overflow-hidden">
+    <img src={item.image} alt={item.name} />
+  </div>
+  
+  {/* Item Details */}
+  <div className="flex-1">
+    <div className="flex justify-between">
+      <div>
+        <h3>{item.name}</h3>
+        {item.selectedSize && (
+          <p>Talla: {item.selectedSize}</p>
+        )}
+      </div>
+      <button onClick={() => removeFromCart(item.id, item.selectedSize)}>
+        <FontAwesomeIcon icon={faTrashCan} />
+      </button>
+    </div>
+    <p className="text-[#D4AF37]">{item.price}</p>
+    
+    {/* Quantity Controls */}
+    <div className="flex items-center">
+      <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}>
+        <FontAwesomeIcon icon={faMinus} />
+      </button>
+      <span>{item.quantity}</span>
+      <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}>
+        <FontAwesomeIcon icon={faPlus} />
+      </button>
+    </div>
+  </div>
+</div>
+```
+
+<Warning>
+  Cart items are keyed by both `id` and `selectedSize` to support the same product with different sizes.
+</Warning>
+
+## Quantity Management
+
+Update item quantities with increment/decrement buttons:
+
+```tsx
+// Decrease quantity
+updateQuantity(item.id, item.quantity - 1, item.selectedSize);
+
+// Increase quantity
+updateQuantity(item.id, item.quantity + 1, item.selectedSize);
+```
+
+The CartContext handles validation and removal when quantity reaches 0.
+
+## Empty State
+
+When the cart is empty, a friendly message is displayed:
+
+```tsx
+{cartItems.length === 0 ? (
+  <div className="h-full flex flex-col items-center justify-center">
+    <div className="w-20 h-20 bg-[#fcfaf7] rounded-full 
+                    flex items-center justify-center">
+      <FontAwesomeIcon icon={faBagShopping} className="text-gray-300" />
+    </div>
+    <p>Tu carrito está vacío</p>
+    <button onClick={() => setIsCartOpen(false)}>
+      Seguir comprando
+    </button>
+  </div>
+) : (
+  // Cart items display
+)}
+```
+
+## WhatsApp Checkout
+
+The checkout button generates a formatted WhatsApp message:
+
+```tsx
+const phoneNumber = "51903433063";
+const message = `Hola JASPERPETSHOP! 👋 Me gustaría realizar el siguiente pedido:
+
+` +
+  cartItems.map(item => 
+    `• ${item.name} ${item.selectedSize ? `(Talla: ${item.selectedSize})` : ''} (${item.quantity}x) - ${item.price}`
+  ).join('\n') +
+  `
+
+*Total: S/ ${cartTotal.toLocaleString()}*
+
+¿Podrían confirmarme la disponibilidad y el costo de envío? Gracias! 🐾`;
+
+const encodedMessage = encodeURIComponent(message);
+window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+
+// Clear cart after checkout
+clearCart();
+setIsCartOpen(false);
+```
+
+### Message Format Example
+
+```
+Hola JASPERPETSHOP! 👋 Me gustaría realizar el siguiente pedido:
+
+• Cama Luxury Cloud (Talla: M) (2x) - S/ 299
+• Rascador Premium (1x) - S/ 450
+
+*Total: S/ 1,048*
+
+¿Podrían confirmarme la disponibilidad y el costo de envío? Gracias! 🐾
+```
+
+## Body Scroll Lock
+
+Prevents background scrolling when drawer is open:
+
+```tsx
+React.useEffect(() => {
+  if (isCartOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'unset';
+  }
+  return () => {
+    document.body.style.overflow = 'unset';
+  };
+}, [isCartOpen]);
+```
+
+## Styling
+
+### Colors
+
+<ParamField path="Background" type="color">
+  White for drawer, `#fcfaf7` (cream) for footer
+</ParamField>
+
+<ParamField path="Gold Accent" type="color">
+  `#D4AF37` for price text and icons
+</ParamField>
+
+<ParamField path="WhatsApp Green" type="color">
+  `#25D366` for checkout button hover state
+</ParamField>
+
+### Z-Index Layers
+
+- **Backdrop**: `z-[60]`
+- **Drawer**: `z-[70]`
+- **Header**: `z-10` (within drawer context)
+
+### Responsive Width
+
+```tsx
+className="w-full max-w-md"
+```
+
+Full width on mobile, capped at `448px` (28rem) on larger screens.
+
+## Animations
+
+### Backdrop Fade
+
+```tsx
+initial={{ opacity: 0 }}
+animate={{ opacity: 1 }}
+exit={{ opacity: 0 }}
+```
+
+### Drawer Slide
+
+```tsx
+initial={{ x: '100%' }}  // Start off-screen right
+animate={{ x: 0 }}        // Slide to position
+exit={{ x: '100%' }}      // Slide off-screen right
+transition={{ 
+  type: 'spring', 
+  damping: 25, 
+  stiffness: 200 
+}}
+```
+
+<Info>
+  The spring animation creates a natural, bouncy feel that enhances the user experience.
+</Info>
+
+## Complete Button Example
+
+```tsx
+<button
+  onClick={() => {
+    // Generate WhatsApp message
+    const phoneNumber = "51903433063";
+    const message = /* formatted message */;
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Open WhatsApp
+    window.open(
+      `https://wa.me/${phoneNumber}?text=${encodedMessage}`, 
+      '_blank'
+    );
+
+    // Cleanup
+    clearCart();
+    setIsCartOpen(false);
+  }}
+  className="w-full bg-[#1a1a1a] text-white py-5 rounded-2xl 
+             font-bold uppercase tracking-[0.2em] text-sm 
+             hover:bg-[#25D366] transition-all shadow-xl 
+             flex items-center justify-center gap-2"
+>
+  <FontAwesomeIcon icon={faWhatsapp} /> 
+  Finalizar por WhatsApp
+</button>
+```
+
+## Accessibility
+
+- Close button has `aria-label="Cerrar carrito"`
+- Backdrop click closes drawer
+- Keyboard navigation supported through button elements
+- Screen reader friendly semantic HTML
+
+## Dependencies
+
+- `react` - Core hooks
+- `framer-motion` - Animation library
+- `@fortawesome/react-fontawesome` - Icons
+- `@fortawesome/free-solid-svg-icons` - UI icons
+- `@fortawesome/free-brands-svg-icons` - WhatsApp icon
+- `../context/CartContext` - Cart state management

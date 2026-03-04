@@ -1,0 +1,349 @@
+---
+title: 'Shopping Cart'
+description: 'Complete guide to the shopping cart system with Context API and localStorage persistence'
+---
+
+## Overview
+
+Jasper Pet Shop implements a robust shopping cart system using React Context API for state management, localStorage for persistence, and WhatsApp integration for checkout.
+
+## Cart Context Architecture
+
+The cart is managed through a centralized context defined in `src/context/CartContext.tsx`:
+
+```typescript src/context/CartContext.tsx
+interface CartItem extends Product {
+    quantity: number;
+    selectedSize?: string;
+}
+
+interface CartContextType {
+    cartItems: CartItem[];
+    addToCart: (product: Product, size?: string, price?: string) => void;
+    removeFromCart: (productId: number, size?: string) => void;
+    updateQuantity: (productId: number, quantity: number, size?: string) => void;
+    clearCart: () => void;
+    cartCount: number;
+    cartTotal: number;
+    isCartOpen: boolean;
+    setIsCartOpen: (isOpen: boolean) => void;
+}
+```
+
+<Note>
+  The cart supports product variants through the `selectedSize` field, allowing the same product with different sizes to be separate cart items.
+</Note>
+
+## Cart Provider Implementation
+
+The `CartProvider` wraps the entire application in `src/App.tsx`:
+
+```typescript src/App.tsx
+import { CartProvider } from './context/CartContext';
+import { CartDrawer } from './components/CartDrawer';
+
+export default function App() {
+    return (
+        <CartProvider>
+            <Router>
+                <Navbar />
+                <CartDrawer />
+                <main>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/catalogo" element={<Catalog />} />
+                    </Routes>
+                </main>
+            </Router>
+        </CartProvider>
+    );
+}
+```
+
+## localStorage Persistence
+
+The cart automatically saves to localStorage and restores on page load:
+
+```typescript src/context/CartContext.tsx
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    // Initialize from localStorage
+    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+        if (typeof window !== 'undefined') {
+            const savedCart = localStorage.getItem('jasper_cart');
+            if (savedCart) {
+                try {
+                    return JSON.parse(savedCart);
+                } catch (e) {
+                    console.error("Failed to parse cart", e);
+                }
+            }
+        }
+        return [];
+    });
+
+    // Save to localStorage on changes
+    useEffect(() => {
+        localStorage.setItem('jasper_cart', JSON.stringify(cartItems));
+    }, [cartItems]);
+};
+```
+
+<Tip>
+  The cart persists across page refreshes, providing a seamless shopping experience. Cart data is stored under the key `jasper_cart`.
+</Tip>
+
+## Cart Operations
+
+### Adding Items
+
+The `addToCart` function handles adding products with variant support:
+
+```typescript src/context/CartContext.tsx
+const addToCart = (product: Product, size?: string, price?: string) => {
+    setCartItems(prev => {
+        // Check if item with same size already exists
+        const existing = prev.find(item => 
+            item.id === product.id && item.selectedSize === size
+        );
+        
+        if (existing) {
+            // Increment quantity
+            return prev.map(item =>
+                (item.id === product.id && item.selectedSize === size)
+                    ? { ...item, quantity: item.quantity + 1 }
+                    : item
+            );
+        }
+        
+        // Add new item
+        return [...prev, { 
+            ...product, 
+            price: price || product.price, 
+            selectedSize: size, 
+            quantity: 1 
+        }];
+    });
+    
+    // Auto-open cart drawer
+    setIsCartOpen(true);
+};
+```
+
+### Updating Quantities
+
+```typescript src/context/CartContext.tsx
+const updateQuantity = (productId: number, quantity: number, size?: string) => {
+    if (quantity <= 0) {
+        removeFromCart(productId, size);
+        return;
+    }
+    
+    setCartItems(prev => prev.map(item =>
+        (item.id === productId && item.selectedSize === size)
+            ? { ...item, quantity }
+            : item
+    ));
+};
+```
+
+### Removing Items
+
+```typescript src/context/CartContext.tsx
+const removeFromCart = (productId: number, size?: string) => {
+    setCartItems(prev => prev.filter(item => 
+        !(item.id === productId && item.selectedSize === size)
+    ));
+};
+```
+
+## Cart Calculations
+
+The context provides real-time calculated values:
+
+```typescript src/context/CartContext.tsx
+// Total item count
+const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+// Total price
+const cartTotal = cartItems.reduce((acc, item) => {
+    const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''));
+    return acc + (priceNum * item.quantity);
+}, 0);
+```
+
+<Warning>
+  Price parsing removes all non-numeric characters. Ensure prices follow the format "S/ XXX" for correct calculations.
+</Warning>
+
+## Cart Drawer UI
+
+The cart displays in a slide-out drawer with Framer Motion animations:
+
+```typescript src/components/CartDrawer.tsx
+import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '../context/CartContext';
+
+export const CartDrawer = () => {
+    const { 
+        cartItems, 
+        isCartOpen, 
+        setIsCartOpen, 
+        updateQuantity, 
+        removeFromCart, 
+        cartTotal, 
+        cartCount 
+    } = useCart();
+
+    return (
+        <AnimatePresence>
+            {isCartOpen && (
+                <>
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsCartOpen(false)}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
+                    />
+
+                    {/* Drawer */}
+                    <motion.div
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className="fixed top-0 right-0 h-full w-full max-w-md bg-white z-[70]"
+                    >
+                        {/* Cart content */}
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+```
+
+## Cart Item Display
+
+Each cart item shows image, name, size, price, and quantity controls:
+
+```typescript src/components/CartDrawer.tsx
+{cartItems.map((item) => (
+    <div key={`${item.id}-${item.selectedSize}`} className="flex gap-4">
+        {/* Product Image */}
+        <div className="w-24 h-24 rounded-2xl overflow-hidden">
+            <img src={item.image} alt={item.name} />
+        </div>
+        
+        {/* Product Info */}
+        <div className="flex-1">
+            <h3 className="font-bold text-sm">{item.name}</h3>
+            {item.selectedSize && (
+                <p className="text-xs text-gray-400">Talla: {item.selectedSize}</p>
+            )}
+            <p className="text-[#D4AF37] font-bold">{item.price}</p>
+            
+            {/* Quantity Controls */}
+            <div className="flex items-center border rounded-lg">
+                <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}>
+                    <FontAwesomeIcon icon={faMinus} />
+                </button>
+                <span className="w-8 text-center">{item.quantity}</span>
+                <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}>
+                    <FontAwesomeIcon icon={faPlus} />
+                </button>
+            </div>
+        </div>
+        
+        {/* Remove Button */}
+        <button onClick={() => removeFromCart(item.id, item.selectedSize)}>
+            <FontAwesomeIcon icon={faTrashCan} />
+        </button>
+    </div>
+))}
+```
+
+## WhatsApp Checkout
+
+The checkout button generates a formatted WhatsApp message:
+
+```typescript src/components/CartDrawer.tsx
+<button
+    onClick={() => {
+        const phoneNumber = "51903433063";
+        const message = `Hola JASPERPETSHOP! 👋 Me gustaría realizar el siguiente pedido:\n\n` +
+            cartItems.map(item => 
+                `• ${item.name} ${item.selectedSize ? `(Talla: ${item.selectedSize})` : ''} (${item.quantity}x) - ${item.price}`
+            ).join('\n') +
+            `\n\n*Total: S/ ${cartTotal.toLocaleString()}*\n\n¿Podrían confirmarme la disponibilidad y el costo de envío? Gracias! 🐾`;
+
+        const encodedMessage = encodeURIComponent(message);
+        window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+
+        // Clear cart after checkout
+        clearCart();
+        setIsCartOpen(false);
+    }}
+    className="w-full bg-[#1a1a1a] text-white py-5 rounded-2xl"
+>
+    <FontAwesomeIcon icon={faWhatsapp} /> Finalizar por WhatsApp
+</button>
+```
+
+<Tip>
+  The cart automatically clears after checkout. Customers receive a pre-formatted message with their order details in WhatsApp.
+</Tip>
+
+## Using the Cart Hook
+
+Access cart functionality in any component:
+
+```typescript
+import { useCart } from '../context/CartContext';
+
+function MyComponent() {
+    const { addToCart, cartCount, cartTotal, setIsCartOpen } = useCart();
+    
+    const handleAddProduct = () => {
+        addToCart(product, selectedSize, currentPrice);
+    };
+    
+    return (
+        <button onClick={() => setIsCartOpen(true)}>
+            Cart ({cartCount})
+        </button>
+    );
+}
+```
+
+## Empty Cart State
+
+When the cart is empty, a friendly message is displayed:
+
+```typescript src/components/CartDrawer.tsx
+{cartItems.length === 0 ? (
+    <div className="h-full flex flex-col items-center justify-center">
+        <div className="w-20 h-20 bg-[#fcfaf7] rounded-full flex items-center justify-center">
+            <FontAwesomeIcon icon={faBagShopping} className="text-gray-300 text-3xl" />
+        </div>
+        <p className="text-gray-500 font-medium">Tu carrito está vacío</p>
+        <button onClick={() => setIsCartOpen(false)}>
+            Seguir comprando
+        </button>
+    </div>
+) : (
+    // Cart items display
+)}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="State Management" icon="database" href="/development/state-management">
+    Learn more about Context API usage
+  </Card>
+  <Card title="Animations" icon="wand-magic-sparkles" href="/features/animations">
+    Explore Framer Motion animations
+  </Card>
+</CardGroup>

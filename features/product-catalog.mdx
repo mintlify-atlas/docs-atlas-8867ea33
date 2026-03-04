@@ -1,0 +1,275 @@
+---
+title: 'Product Catalog'
+description: 'Learn how products are managed and displayed in Jasper Pet Shop'
+---
+
+## Overview
+
+The product catalog is the heart of Jasper Pet Shop, featuring luxury pet furniture organized by categories. Products support variants (sizes), dynamic pricing, and rich metadata.
+
+## Product Data Structure
+
+Products are defined in `src/data/products.ts` with a TypeScript interface ensuring type safety:
+
+```typescript src/data/products.ts
+export interface ProductVariant {
+    size: string;
+    price: string;
+}
+
+export interface Product {
+    id: number;
+    name: string;
+    price: string;
+    category: string;
+    image: string;
+    description: string;
+    variants?: ProductVariant[];
+}
+```
+
+### Product Example
+
+Here's a real product from the catalog:
+
+```typescript src/data/products.ts
+{
+    id: 1,
+    name: "Sofa Royal Velvet",
+    price: "S/ 899",
+    category: "Sofás",
+    image: "https://images.unsplash.com/photo-1541599540903-216a46ca1df0?auto=format&fit=crop&q=80&w=800",
+    description: "Terciopelo italiano de alta resistencia con base de madera sólida.",
+    variants: [
+        { size: "S", price: "S/ 899" },
+        { size: "M", price: "S/ 1,099" },
+        { size: "L", price: "S/ 1,299" }
+    ]
+}
+```
+
+<Note>
+  Products with variants allow customers to select different sizes with corresponding prices. Products without variants use the base price.
+</Note>
+
+## Product Categories
+
+Jasper Pet Shop organizes products into three main categories:
+
+<CardGroup cols={3}>
+  <Card title="Camas" icon="bed">
+    Premium beds with memory foam and orthopedic support
+  </Card>
+  <Card title="Sofás" icon="couch">
+    Luxury sofas with Italian velvet and solid wood bases
+  </Card>
+  <Card title="Accesorios" icon="paw">
+    Stairs, blankets, and other comfort accessories
+  </Card>
+</CardGroup>
+
+## Catalog Page Implementation
+
+The catalog page (`src/pages/Catalog.tsx`) provides category filtering and dynamic product display:
+
+```typescript src/pages/Catalog.tsx
+import { products } from '../data/products';
+import { ProductCard } from '../components/ProductCard';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+
+const categories = ['Todos', 'Camas', 'Sofás', 'Accesorios'];
+
+export const Catalog = () => {
+    const [selectedCategory, setSelectedCategory] = useState('Todos');
+
+    const filteredProducts = selectedCategory === 'Todos'
+        ? products
+        : products.filter(p => p.category === selectedCategory);
+
+    return (
+        <div className="pt-32 pb-20 bg-[#fcfaf7] min-h-screen">
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-4 mb-12">
+                {categories.map((category) => (
+                    <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`px-8 py-3 rounded-full ${selectedCategory === category
+                            ? 'bg-[#1a1a1a] text-white shadow-xl scale-105'
+                            : 'bg-white text-gray-600 hover:bg-gray-100'
+                        }`}
+                    >
+                        {category}
+                    </button>
+                ))}
+            </div>
+
+            {/* Product Grid */}
+            <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+                {filteredProducts.map((product, i) => (
+                    <ProductCard key={product.id} product={product} delay={i * 50} />
+                ))}
+            </motion.div>
+        </div>
+    );
+};
+```
+
+<Tip>
+  The `motion.div` with `layout` prop from Framer Motion provides smooth animations when filtering categories.
+</Tip>
+
+## ProductCard Component
+
+Each product is displayed using the `ProductCard` component with hover effects and variant selection:
+
+```typescript src/components/ProductCard.tsx
+export const ProductCard: React.FC<ProductCardProps> = ({ product, delay = 0 }) => {
+    const { addToCart } = useCart();
+    const [selectedSize, setSelectedSize] = React.useState(product.variants?.[0]?.size || '');
+    const [currentPrice, setCurrentPrice] = React.useState(product.variants?.[0]?.price || product.price);
+
+    const handleSizeChange = (size: string, price: string) => {
+        setSelectedSize(size);
+        setCurrentPrice(price);
+    };
+
+    return (
+        <div className="group" data-aos="fade-up" data-aos-delay={delay}>
+            {/* Product Image with Hover Effect */}
+            <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden mb-6">
+                <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                
+                {/* Add to Cart Button */}
+                <div className="absolute bottom-6 left-6 right-6 md:translate-y-24 md:group-hover:translate-y-0 transition-transform">
+                    <button
+                        onClick={() => addToCart(product, selectedSize, currentPrice)}
+                        className="w-full bg-[#1a1a1a] text-white py-4 rounded-2xl"
+                    >
+                        Añadir al Carrito
+                    </button>
+                </div>
+            </div>
+            
+            {/* Variant Selector */}
+            {product.variants && (
+                <div className="flex flex-wrap gap-2">
+                    {product.variants.map((v) => (
+                        <button
+                            key={v.size}
+                            onClick={() => handleSizeChange(v.size, v.price)}
+                            className={selectedSize === v.size
+                                ? 'bg-[#D4AF37] text-white'
+                                : 'bg-white text-[#1a1a1a]'
+                            }
+                        >
+                            {v.size}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+```
+
+## Product Display Features
+
+<Tabs>
+  <Tab title="Image Hover">
+    Product images scale on hover with a smooth 700ms transition:
+    
+    ```css
+    .group-hover:scale-110
+    transition-transform duration-700
+    ```
+  </Tab>
+  
+  <Tab title="AOS Animations">
+    Products fade up on scroll with staggered delays:
+    
+    ```jsx
+    data-aos="fade-up" data-aos-delay={index * 50}
+    ```
+  </Tab>
+  
+  <Tab title="Variant Selection">
+    Size buttons update both the selected size and displayed price dynamically.
+  </Tab>
+</Tabs>
+
+## Adding New Products
+
+To add a new product to the catalog:
+
+<Steps>
+  <Step title="Open products.ts">
+    Navigate to `src/data/products.ts`
+  </Step>
+  
+  <Step title="Add product object">
+    Add a new product object to the `products` array:
+    
+    ```typescript
+    {
+        id: 9, // Use next available ID
+        name: "Your Product Name",
+        price: "S/ 999",
+        category: "Camas", // or "Sofás" or "Accesorios"
+        image: "https://your-image-url.com/image.jpg",
+        description: "Product description here",
+        variants: [ // Optional
+            { size: "Small", price: "S/ 999" },
+            { size: "Large", price: "S/ 1,299" }
+        ]
+    }
+    ```
+  </Step>
+  
+  <Step title="Save and test">
+    The product will automatically appear in the catalog. Test the category filter and variant selection.
+  </Step>
+</Steps>
+
+<Warning>
+  Ensure each product has a unique ID to prevent conflicts in the shopping cart.
+</Warning>
+
+## Home Page Product Display
+
+The home page displays a curated selection of products using the same `ProductCard` component:
+
+```typescript src/components/Products.tsx
+import { products } from '../data/products';
+import { ProductCard } from './ProductCard';
+
+export const Products = () => {
+    const featuredProducts = products.slice(0, 4); // Show first 4 products
+    
+    return (
+        <section id="productos" className="py-24 bg-white">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+                {featuredProducts.map((product, i) => (
+                    <ProductCard key={product.id} product={product} delay={i * 100} />
+                ))}
+            </div>
+        </section>
+    );
+};
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Shopping Cart" icon="cart-shopping" href="/features/shopping-cart">
+    Learn how products are added to cart
+  </Card>
+  <Card title="Animations" icon="wand-magic-sparkles" href="/features/animations">
+    Explore animation techniques
+  </Card>
+</CardGroup>

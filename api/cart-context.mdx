@@ -1,0 +1,237 @@
+---
+title: "CartContext"
+description: "React Context for managing shopping cart state with localStorage persistence"
+---
+
+## CartProvider
+
+The `CartProvider` component wraps your application to provide cart functionality throughout the component tree. It manages cart state and persists data to localStorage.
+
+### Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  The child components that will have access to the cart context
+</ParamField>
+
+### Usage
+
+```tsx
+import { CartProvider } from './context/CartContext';
+
+function App() {
+  return (
+    <CartProvider>
+      {/* Your app components */}
+    </CartProvider>
+  );
+}
+```
+
+### Implementation Details
+
+The CartProvider initializes cart state from localStorage on mount:
+
+```tsx
+const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+  if (typeof window !== 'undefined') {
+    const savedCart = localStorage.getItem('jasper_cart');
+    if (savedCart) {
+      try {
+        return JSON.parse(savedCart);
+      } catch (e) {
+        console.error("Failed to parse cart", e);
+      }
+    }
+  }
+  return [];
+});
+```
+
+Cart data is automatically saved to localStorage whenever it changes:
+
+```tsx
+useEffect(() => {
+  localStorage.setItem('jasper_cart', JSON.stringify(cartItems));
+}, [cartItems]);
+```
+
+---
+
+## useCart Hook
+
+Custom hook to access cart context. Must be used within a `CartProvider`.
+
+### Returns
+
+<ResponseField name="cartItems" type="CartItem[]">
+  Array of items currently in the cart
+</ResponseField>
+
+<ResponseField name="cartCount" type="number">
+  Total number of items in cart (sum of all quantities)
+</ResponseField>
+
+<ResponseField name="cartTotal" type="number">
+  Total price of all items in cart (numeric value without currency symbol)
+</ResponseField>
+
+<ResponseField name="isCartOpen" type="boolean">
+  Whether the cart sidebar is currently open
+</ResponseField>
+
+<ResponseField name="setIsCartOpen" type="(isOpen: boolean) => void">
+  Function to open or close the cart sidebar
+</ResponseField>
+
+<ResponseField name="addToCart" type="(product: Product, size?: string, price?: string) => void">
+  Add a product to the cart. If the product with the same size already exists, increments quantity.
+  
+  **Parameters:**
+  - `product`: The product object to add
+  - `size`: Optional size variant selection
+  - `price`: Optional custom price (overrides product.price)
+</ResponseField>
+
+<ResponseField name="removeFromCart" type="(productId: number, size?: string) => void">
+  Remove a product from the cart completely.
+  
+  **Parameters:**
+  - `productId`: The ID of the product to remove
+  - `size`: Optional size to match (required if product was added with a size)
+</ResponseField>
+
+<ResponseField name="updateQuantity" type="(productId: number, quantity: number, size?: string) => void">
+  Update the quantity of a product in the cart. If quantity is 0 or less, removes the item.
+  
+  **Parameters:**
+  - `productId`: The ID of the product to update
+  - `quantity`: The new quantity
+  - `size`: Optional size to match (required if product was added with a size)
+</ResponseField>
+
+<ResponseField name="clearCart" type="() => void">
+  Remove all items from the cart
+</ResponseField>
+
+### Usage
+
+```tsx
+import { useCart } from './context/CartContext';
+
+function ProductCard({ product }) {
+  const { addToCart, cartCount } = useCart();
+  
+  const handleAddToCart = () => {
+    addToCart(product, 'M', 'S/ 1,099');
+  };
+  
+  return (
+    <div>
+      <h3>{product.name}</h3>
+      <button onClick={handleAddToCart}>Add to Cart ({cartCount})</button>
+    </div>
+  );
+}
+```
+
+### Error Handling
+
+The hook throws an error if used outside of a `CartProvider`:
+
+```tsx
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) throw new Error('useCart must be used within a CartProvider');
+  return context;
+};
+```
+
+---
+
+## Cart Operations
+
+### addToCart
+
+Adds a product to the cart or increments quantity if it already exists.
+
+```tsx
+const addToCart = (product: Product, size?: string, price?: string) => {
+  setCartItems(prev => {
+    const existing = prev.find(item => item.id === product.id && item.selectedSize === size);
+    if (existing) {
+      return prev.map(item =>
+        (item.id === product.id && item.selectedSize === size) 
+          ? { ...item, quantity: item.quantity + 1 } 
+          : item
+      );
+    }
+    return [...prev, { ...product, price: price || product.price, selectedSize: size, quantity: 1 }];
+  });
+  setIsCartOpen(true);
+};
+```
+
+**Behavior:**
+- Automatically opens the cart sidebar after adding
+- Matches items by both `id` and `selectedSize`
+- Allows custom price override
+- Initializes quantity at 1 for new items
+
+### removeFromCart
+
+Removes a product from the cart entirely.
+
+```tsx
+const removeFromCart = (productId: number, size?: string) => {
+  setCartItems(prev => prev.filter(item => !(item.id === productId && item.selectedSize === size)));
+};
+```
+
+### updateQuantity
+
+Updates the quantity of a cart item. Removes the item if quantity is 0 or less.
+
+```tsx
+const updateQuantity = (productId: number, quantity: number, size?: string) => {
+  if (quantity <= 0) {
+    removeFromCart(productId, size);
+    return;
+  }
+  setCartItems(prev => prev.map(item =>
+    (item.id === productId && item.selectedSize === size) ? { ...item, quantity } : item
+  ));
+};
+```
+
+### clearCart
+
+Removes all items from the cart.
+
+```tsx
+const clearCart = () => setCartItems([]);
+```
+
+---
+
+## Computed Values
+
+### cartCount
+
+Calculates the total number of items across all cart entries:
+
+```tsx
+const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+```
+
+### cartTotal
+
+Calculates the total price by parsing currency strings and multiplying by quantities:
+
+```tsx
+const cartTotal = cartItems.reduce((acc, item) => {
+  const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''));
+  return acc + (priceNum * item.quantity);
+}, 0);
+```
+
+**Note:** This strips all non-numeric characters from the price string (e.g., "S/ 1,099" becomes 1099).

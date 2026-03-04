@@ -1,0 +1,171 @@
+---
+title: 'Navbar'
+description: 'Responsive navigation bar with cart integration and mobile menu'
+---
+
+## Overview
+
+The `Navbar` component provides a fixed navigation bar with responsive behavior, cart integration, and smooth scroll detection. It features a mobile-friendly hamburger menu and integrates with the CartContext for real-time cart count updates.
+
+## Import
+
+```tsx
+import { Navbar } from '../components/Navbar';
+```
+
+## Usage
+
+```tsx
+import { Navbar } from './components/Navbar';
+
+function App() {
+  return (
+    <>
+      <Navbar />
+      {/* Rest of your app */}
+    </>
+  );
+}
+```
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Scroll Detection" icon="scroll">
+    Automatically changes background and padding based on scroll position
+  </Card>
+  <Card title="Cart Integration" icon="cart-shopping">
+    Displays cart count badge and opens cart drawer
+  </Card>
+  <Card title="Mobile Menu" icon="bars">
+    Full-screen mobile navigation with smooth transitions
+  </Card>
+  <Card title="Active States" icon="check">
+    Highlights current page in navigation
+  </Card>
+</CardGroup>
+
+## Component Structure
+
+### State Management
+
+The component manages three key states:
+
+<ParamField path="isMenuOpen" type="boolean" default="false">
+  Controls the visibility of the mobile menu
+</ParamField>
+
+<ParamField path="isScrolled" type="boolean" default="false">
+  Tracks whether the page has been scrolled past 50px
+</ParamField>
+
+<ParamField path="location" type="Location">
+  React Router location object for tracking active navigation items
+</ParamField>
+
+### Navigation Items
+
+```tsx
+const navItems = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Catálogo', path: '/catalogo' },
+  { name: 'Nosotros', path: '/#nosotros' },
+  { name: 'Contacto', path: '/#contacto' },
+];
+```
+
+## Styling
+
+### Color Scheme
+
+- **Primary Gold**: `#D4AF37`
+- **Text Dark**: `#1a1a1a`
+- **Background (scrolled)**: `bg-white/90` with backdrop blur
+- **Background (top)**: Transparent
+
+### Responsive Behavior
+
+<Tabs>
+  <Tab title="Desktop (md+)">
+    - Horizontal navigation items
+    - Visible cart button and shop CTA
+    - Hover effects with underline animations
+  </Tab>
+  <Tab title="Mobile (< md)">
+    - Hamburger menu button
+    - Full-screen overlay menu
+    - Stacked navigation items
+    - Body scroll lock when menu is open
+  </Tab>
+</Tabs>
+
+## Effects
+
+### Menu Open Effect
+
+Prevents body scrolling when mobile menu is open:
+
+```tsx
+React.useEffect(() => {
+  if (isMenuOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'unset';
+  }
+  return () => {
+    document.body.style.overflow = 'unset';
+  };
+}, [isMenuOpen]);
+```
+
+### Scroll Detection
+
+Changes navbar appearance after 50px scroll:
+
+```tsx
+React.useEffect(() => {
+  const handleScroll = () => setIsScrolled(window.scrollY > 50);
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
+```
+
+## Cart Integration
+
+The Navbar uses the CartContext to:
+
+<Steps>
+  <Step title="Get Cart Count">
+    Displays the number of items in the cart with a badge
+  </Step>
+  <Step title="Open Cart Drawer">
+    Clicking the cart button triggers `setIsCartOpen(true)`
+  </Step>
+  <Step title="Real-time Updates">
+    Cart count badge updates automatically when items are added
+  </Step>
+</Steps>
+
+```tsx
+const { cartCount, setIsCartOpen } = useCart();
+
+<button onClick={() => setIsCartOpen(true)} className="relative">
+  <FontAwesomeIcon icon={faBagShopping} />
+  {cartCount > 0 && (
+    <span className="absolute badge">{cartCount}</span>
+  )}
+</button>
+```
+
+## Dependencies
+
+- `react-router-dom` - Navigation and routing
+- `@fortawesome/react-fontawesome` - Icons
+- `../context/CartContext` - Cart state management
+
+## Accessibility
+
+- Fixed positioning with `z-50` ensures visibility
+- Keyboard navigation support via React Router links
+- Mobile menu cleanup on unmount prevents scroll lock
+- Clear visual indicators for active navigation items

@@ -1,0 +1,340 @@
+---
+title: 'About'
+description: 'About section with brand story, image gallery, and key features list'
+---
+
+## Overview
+
+The `About` component (displayed as "Nosotros" in Spanish) presents the brand story with a visually engaging two-column layout featuring an image gallery with stats cards and descriptive content with feature highlights.
+
+## Import
+
+```tsx
+import { About } from '../components/About';
+```
+
+## Usage
+
+```tsx
+import { About } from './components/About';
+
+function HomePage() {
+  return (
+    <>
+      {/* Other sections */}
+      <About /> {/* Brand story section */}
+      {/* More sections */}
+    </>
+  );
+}
+```
+
+## Layout Structure
+
+The component uses a 2-column grid layout on large screens:
+
+<CardGroup cols={2}>
+  <Card title="Left Side" icon="images">
+    Image gallery with stat cards
+  </Card>
+  <Card title="Right Side" icon="align-left">
+    Brand story, features list, and CTA
+  </Card>
+</CardGroup>
+
+## Left Column - Image Gallery
+
+The left side features a creative 2-column staggered gallery:
+
+```tsx
+<div className="grid grid-cols-2 gap-6">
+  {/* Left Column */}
+  <div className="space-y-6 pt-12">
+    <img src="cat-image" className="rounded-[40px] shadow-2xl" />
+    
+    <div className="bg-[#D4AF37] p-8 rounded-[40px] text-white">
+      <p className="text-4xl font-serif font-bold mb-2">100%</p>
+      <p className="text-xs uppercase">Calidad Artesanal</p>
+    </div>
+  </div>
+  
+  {/* Right Column */}
+  <div className="space-y-6">
+    <div className="bg-black p-8 rounded-[40px] text-white">
+      <p className="text-4xl font-serif font-bold mb-2">+5k</p>
+      <p className="text-xs uppercase">Mascotas Felices</p>
+    </div>
+    
+    <img src="dog-image" className="rounded-[40px] shadow-2xl" />
+  </div>
+</div>
+```
+
+### Gallery Elements
+
+<Steps>
+  <Step title="Cat Image">
+    Top left with `pt-12` offset for staggered effect
+  </Step>
+  <Step title="100% Quality Card">
+    Gold background card with large stat number
+  </Step>
+  <Step title="+5k Pets Card">
+    Black background card starting the right column
+  </Step>
+  <Step title="Dog Image">
+    Bottom right completing the asymmetric layout
+  </Step>
+</Steps>
+
+### Stat Cards
+
+<Tabs>
+  <Tab title="Quality Card">
+    ```tsx
+    <div className="bg-[#D4AF37] p-8 rounded-[40px] text-white">
+      <p className="text-4xl font-serif font-bold mb-2">100%</p>
+      <p className="text-xs uppercase tracking-widest font-bold opacity-80">
+        Calidad Artesanal
+      </p>
+    </div>
+    ```
+  </Tab>
+  <Tab title="Happy Pets Card">
+    ```tsx
+    <div className="bg-black p-8 rounded-[40px] text-white">
+      <p className="text-4xl font-serif font-bold mb-2">+5k</p>
+      <p className="text-xs uppercase tracking-widest font-bold opacity-80">
+        Mascotas Felices
+      </p>
+    </div>
+    ```
+  </Tab>
+</Tabs>
+
+## Right Column - Brand Story
+
+### Section Structure
+
+<ParamField path="Badge" type="component">
+  Small uppercase label: "Nuestra Esencia" in gold
+</ParamField>
+
+<ParamField path="Headline" type="text">
+  Large serif heading with gold italic emphasis:
+  
+  "Diseño que entiende **su lenguaje.**"
+</ParamField>
+
+<ParamField path="Description" type="text">
+  Brand mission statement explaining the craftsmanship philosophy
+</ParamField>
+
+### Complete Right Column Code
+
+```tsx
+<div data-aos="fade-left">
+  <span className="text-[#D4AF37] font-bold uppercase 
+                   tracking-[0.3em] text-[10px] mb-6 block">
+    Nuestra Esencia
+  </span>
+  
+  <h2 className="text-5xl md:text-6xl font-serif font-bold 
+                 mb-8 leading-tight">
+    Diseño que entiende <br />
+    <span className="text-[#D4AF37] italic">su lenguaje.</span>
+  </h2>
+  
+  <p className="text-lg text-gray-500 mb-10 leading-relaxed">
+    En JASPERPETSHOP, no solo fabricamos muebles; creamos santuarios. 
+    Cada costura y cada material es seleccionado pensando en la 
+    anatomía y el confort de quienes son el corazón de tu hogar.
+  </p>
+
+  {/* Features Grid */}
+  {/* CTA Button */}
+</div>
+```
+
+## Features List
+
+The component displays four key features in a 2-column grid:
+
+```tsx
+const featuresList = [
+  "Materiales Hipoalergénicos",
+  "Estructuras de Madera Sólida",
+  "Telas Anti-Rasguños",
+  "Diseños Personalizables"
+];
+
+<div className="grid sm:grid-cols-2 gap-6">
+  {featuresList.map((item, i) => (
+    <div key={i} className="flex items-center gap-3">
+      <FontAwesomeIcon icon={faCircleCheck} className="text-[#D4AF37]" />
+      <span className="font-bold text-sm tracking-tight">{item}</span>
+    </div>
+  ))}
+</div>
+```
+
+<CardGroup cols={2}>
+  <Card title="Materiales Hipoalergénicos" icon="circle-check">
+    Safe materials for sensitive pets
+  </Card>
+  <Card title="Estructuras de Madera Sólida" icon="circle-check">
+    Durable solid wood construction
+  </Card>
+  <Card title="Telas Anti-Rasguños" icon="circle-check">
+    Scratch-resistant fabrics
+  </Card>
+  <Card title="Diseños Personalizables" icon="circle-check">
+    Customizable design options
+  </Card>
+</CardGroup>
+
+## Call-to-Action Button
+
+A subtle underline-style CTA at the bottom:
+
+```tsx
+<button className="mt-12 border-b-2 border-[#D4AF37] pb-2 
+                   text-[#D4AF37] font-bold uppercase 
+                   tracking-widest text-xs hover:text-black 
+                   hover:border-black transition-all">
+  Conoce más sobre nosotros
+</button>
+```
+
+<ParamField path="CTA Style" type="style">
+  - Underline instead of filled button
+  - Transitions from gold to black on hover
+  - Minimal, elegant design
+</ParamField>
+
+## Images
+
+The component uses Unsplash images with specific parameters:
+
+<Tabs>
+  <Tab title="Cat Image">
+    ```tsx
+    src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=400"
+    ```
+  </Tab>
+  <Tab title="Dog Image">
+    ```tsx
+    src="https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&q=80&w=400"
+    ```
+  </Tab>
+</Tabs>
+
+<Info>
+  Both images use `referrerPolicy="no-referrer"` to ensure proper loading from external sources.
+</Info>
+
+## Styling
+
+### Colors
+
+<ParamField path="Primary Gold" type="color">
+  `#D4AF37` - Used for badge, headline accent, icons, and CTA
+</ParamField>
+
+<ParamField path="Text Colors" type="color">
+  - Primary: Near black (`#1a1a1a`)
+  - Secondary: `gray-500`
+</ParamField>
+
+<ParamField path="Card Backgrounds" type="color">
+  - Gold card: `#D4AF37`
+  - Black card: `black`
+</ParamField>
+
+### Border Radius
+
+Consistent `rounded-[40px]` (40px radius) on all cards and images for a cohesive look.
+
+### Typography
+
+- **Badge**: `10px` uppercase, extra wide tracking
+- **Headline**: `5xl` to `6xl`, serif, bold
+- **Body**: `text-lg`, relaxed line height
+- **Features**: `text-sm`, bold, tight tracking
+
+## Animations
+
+Both columns animate on scroll:
+
+<Tabs>
+  <Tab title="Left Gallery">
+    ```tsx
+    data-aos="fade-right"
+    ```
+    Images and stats slide in from left
+  </Tab>
+  <Tab title="Right Content">
+    ```tsx
+    data-aos="fade-left"
+    ```
+    Text content slides in from right
+  </Tab>
+</Tabs>
+
+## Responsive Behavior
+
+<Steps>
+  <Step title="Large Screens (lg+)">
+    Two column layout with image gallery on left, content on right
+  </Step>
+  <Step title="Medium Screens">
+    Headline reduces from `6xl` to `5xl`
+  </Step>
+  <Step title="Small Screens">
+    - Single column stacked layout
+    - Gallery displays first
+    - Features remain in 2-column grid
+  </Step>
+</Steps>
+
+## Section Padding
+
+```tsx
+className="py-32 overflow-hidden"
+```
+
+- Vertical padding: `128px` (8rem)
+- `overflow-hidden` prevents animation artifacts
+
+## Accessibility
+
+- Semantic heading structure (`<h2>`)
+- Descriptive alt text on images
+- Clear visual hierarchy
+- Sufficient color contrast
+- Keyboard accessible button
+
+## Integration Example
+
+```tsx
+import { About } from './components/About';
+import { Hero } from './components/Hero';
+import { Products } from './components/Products';
+
+function HomePage() {
+  return (
+    <main>
+      <Hero />
+      <Products />
+      <About />  {/* Brand story section */}
+      {/* More sections */}
+    </main>
+  );
+}
+```
+
+## Dependencies
+
+- `@fortawesome/react-fontawesome` - Icon component
+- `@fortawesome/free-solid-svg-icons` - `faCircleCheck` icon
+- AOS library - Scroll animations

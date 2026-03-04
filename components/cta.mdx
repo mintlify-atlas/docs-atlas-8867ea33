@@ -1,0 +1,405 @@
+---
+title: 'CTA'
+description: 'Eye-catching call-to-action section with WhatsApp and catalog links'
+---
+
+## Overview
+
+The `CTA` (Call-to-Action) component provides a prominent conversion section with a bold headline, promotional text, and two action buttons: one for WhatsApp checkout and one to view the catalog.
+
+## Import
+
+```tsx
+import { CTA } from '../components/CTA';
+```
+
+## Usage
+
+```tsx
+import { CTA } from './components/CTA';
+
+function HomePage() {
+  return (
+    <>
+      {/* Other sections */}
+      <CTA /> {/* Final conversion section */}
+    </>
+  );
+}
+```
+
+<Info>
+  This component works best near the end of the page as a final conversion opportunity before the footer.
+</Info>
+
+## Component Structure
+
+```tsx
+export const CTA = () => {
+  return (
+    <section className="py-32">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="relative rounded-[60px] overflow-hidden 
+                        bg-[#D4AF37] p-12 md:p-24 text-white 
+                        text-center" data-aos="zoom-in">
+          {/* Background Pattern */}
+          {/* Content */}
+        </div>
+      </div>
+    </section>
+  );
+};
+```
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="WhatsApp Integration" icon="whatsapp">
+    Direct link to WhatsApp for immediate contact
+  </Card>
+  <Card title="Catalog Link" icon="book">
+    Button to browse full product catalog
+  </Card>
+  <Card title="Promotional Offer" icon="percent">
+    15% discount messaging for first purchase
+  </Card>
+  <Card title="Background Pattern" icon="grip">
+    Subtle dot pattern for visual interest
+  </Card>
+</CardGroup>
+
+## Content Section
+
+### Headline
+
+<ParamField path="Headline" type="text">
+  Large, bold headline with line breaks:
+  
+  "Dale a tu mejor amigo el trono que merece."
+</ParamField>
+
+```tsx
+<h2 className="text-5xl md:text-7xl font-serif font-bold 
+               mb-8 leading-tight">
+  Dale a tu mejor amigo <br /> el trono que merece.
+</h2>
+```
+
+### Promotional Text
+
+<ParamField path="Promo Copy" type="text">
+  Supporting text with discount offer:
+  
+  "Únete a nuestra comunidad de amantes de las mascotas y recibe un 15% de descuento en tu primera compra."
+</ParamField>
+
+```tsx
+<p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto 
+              font-light">
+  Únete a nuestra comunidad de amantes de las mascotas y recibe 
+  un 15% de descuento en tu primera compra.
+</p>
+```
+
+## Action Buttons
+
+Two buttons are displayed side by side:
+
+<Tabs>
+  <Tab title="WhatsApp Button (Primary)">
+    ```tsx
+    <a
+      href="https://wa.me/51903433063"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="bg-black text-white px-12 py-5 rounded-2xl 
+                 font-bold uppercase tracking-widest text-sm 
+                 flex items-center gap-3 hover:scale-105 
+                 transition-transform shadow-2xl"
+    >
+      Comprar por WhatsApp <FontAwesomeIcon icon={faArrowRight} />
+    </a>
+    ```
+  </Tab>
+  <Tab title="Catalog Button (Secondary)">
+    ```tsx
+    <Link 
+      to="/catalogo" 
+      className="bg-white/20 backdrop-blur-md text-white 
+                 px-12 py-5 rounded-2xl font-bold uppercase 
+                 tracking-widest text-sm hover:bg-white/30 
+                 transition-all"
+    >
+      Ver Catálogo
+    </Link>
+    ```
+  </Tab>
+</Tabs>
+
+### Button Styles
+
+**Primary Button (WhatsApp)**
+- Background: Black
+- Hover effect: Scale up to 105%
+- Shadow: `shadow-2xl`
+- Icon: Right arrow
+- Opens in new tab
+
+**Secondary Button (Catalog)**
+- Background: `white/20` with backdrop blur (glass effect)
+- Hover effect: Increases opacity to `white/30`
+- React Router Link (internal navigation)
+
+```tsx
+<div className="flex flex-wrap justify-center gap-6">
+  {/* WhatsApp Button */}
+  <a href="https://wa.me/51903433063" target="_blank" 
+     className="bg-black hover:scale-105">
+    Comprar por WhatsApp
+  </a>
+  
+  {/* Catalog Button */}
+  <Link to="/catalogo" className="bg-white/20 backdrop-blur-md">
+    Ver Catálogo
+  </Link>
+</div>
+```
+
+## Background Pattern
+
+A subtle dot pattern adds visual interest:
+
+```tsx
+<div className="absolute inset-0 opacity-10 pointer-events-none">
+  <div 
+    className="absolute top-0 left-0 w-full h-full" 
+    style={{ 
+      backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', 
+      backgroundSize: '40px 40px' 
+    }}
+  >
+  </div>
+</div>
+```
+
+<ParamField path="Pattern Details" type="style">
+  - Type: Radial gradient dots
+  - Color: White at 10% opacity
+  - Size: 40x40px grid
+  - Pointer events: None (doesn't interfere with clicks)
+</ParamField>
+
+## WhatsApp Link
+
+The WhatsApp button uses the `wa.me` URL format:
+
+```tsx
+href="https://wa.me/51903433063"
+```
+
+<Info>
+  Format: `https://wa.me/[country code][phone number]` (no + or spaces)
+</Info>
+
+You can also add a pre-filled message:
+
+```tsx
+href="https://wa.me/51903433063?text=Hola!%20Quiero%20información"
+```
+
+## Styling
+
+### Container Styling
+
+<ParamField path="Background" type="color">
+  `#D4AF37` - Signature gold color
+</ParamField>
+
+<ParamField path="Border Radius" type="dimension">
+  `rounded-[60px]` - Large 60px radius for card-like appearance
+</ParamField>
+
+<ParamField path="Padding" type="spacing">
+  - Mobile: `p-12` (48px)
+  - Desktop: `md:p-24` (96px)
+</ParamField>
+
+### Typography
+
+- **Headline**: 
+  - Size: `text-5xl` (mobile) to `text-7xl` (desktop)
+  - Font: Serif
+  - Weight: Bold
+  - Line height: `leading-tight`
+
+- **Promo Text**:
+  - Size: `text-xl`
+  - Color: `text-white/80` (80% opacity)
+  - Weight: `font-light`
+  - Max width: `max-w-2xl` (672px)
+
+- **Buttons**:
+  - Size: `text-sm`
+  - Transform: Uppercase
+  - Tracking: `tracking-widest`
+  - Weight: Bold
+
+## Animations
+
+The entire CTA card zooms in on scroll:
+
+```tsx
+data-aos="zoom-in"
+```
+
+Plus button hover animations:
+
+```tsx
+// WhatsApp button
+hover:scale-105 transition-transform
+
+// Catalog button
+hover:bg-white/30 transition-all
+```
+
+## Responsive Behavior
+
+<CardGroup cols={2}>
+  <Card title="Mobile">
+    - Smaller padding (48px)
+    - Smaller headline (5xl)
+    - Buttons stack with flex-wrap
+    - Full-width buttons below certain breakpoint
+  </Card>
+  <Card title="Desktop">
+    - Larger padding (96px)
+    - Larger headline (7xl)
+    - Buttons side-by-side
+    - Optimal spacing and proportions
+  </Card>
+</CardGroup>
+
+## Section Padding
+
+```tsx
+className="py-32"
+```
+
+Vertical padding of `128px` (8rem) provides ample breathing room.
+
+## Content Centering
+
+All content is center-aligned:
+
+```tsx
+text-center              // Text alignment
+justify-center           // Button container
+mx-auto                  // Max-width centering
+max-w-2xl mx-auto        // Promo text centering
+```
+
+## Accessibility
+
+- Semantic `<section>` element
+- Clear, descriptive button text
+- Sufficient color contrast (white on gold)
+- External links open in new tabs with proper rel attributes
+- Keyboard navigation supported
+
+## Complete Component
+
+```tsx
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
+
+export const CTA = () => {
+  return (
+    <section className="py-32">
+      <div className="max-w-7xl mx-auto px-6">
+        <div 
+          className="relative rounded-[60px] overflow-hidden 
+                     bg-[#D4AF37] p-12 md:p-24 text-white text-center" 
+          data-aos="zoom-in"
+        >
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none">
+            <div 
+              className="absolute top-0 left-0 w-full h-full" 
+              style={{ 
+                backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', 
+                backgroundSize: '40px 40px' 
+              }}
+            />
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10">
+            <h2 className="text-5xl md:text-7xl font-serif font-bold 
+                           mb-8 leading-tight">
+              Dale a tu mejor amigo <br /> el trono que merece.
+            </h2>
+            
+            <p className="text-xl text-white/80 mb-12 max-w-2xl 
+                          mx-auto font-light">
+              Únete a nuestra comunidad de amantes de las mascotas y 
+              recibe un 15% de descuento en tu primera compra.
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-6">
+              <a
+                href="https://wa.me/51903433063"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black text-white px-12 py-5 rounded-2xl 
+                           font-bold uppercase tracking-widest text-sm 
+                           flex items-center gap-3 hover:scale-105 
+                           transition-transform shadow-2xl"
+              >
+                Comprar por WhatsApp 
+                <FontAwesomeIcon icon={faArrowRight} />
+              </a>
+              
+              <Link 
+                to="/catalogo" 
+                className="bg-white/20 backdrop-blur-md text-white 
+                           px-12 py-5 rounded-2xl font-bold uppercase 
+                           tracking-widest text-sm hover:bg-white/30 
+                           transition-all"
+              >
+                Ver Catálogo
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+```
+
+## Integration Example
+
+```tsx
+import { CTA } from './components/CTA';
+import { SocialSection } from './components/SocialSection';
+import { Footer } from './components/Footer';
+
+function HomePage() {
+  return (
+    <main>
+      {/* Earlier sections */}
+      <SocialSection />
+      <CTA />  {/* Final conversion opportunity */}
+      <Footer />
+    </main>
+  );
+}
+```
+
+## Dependencies
+
+- `react-router-dom` - Link component for catalog navigation
+- `@fortawesome/react-fontawesome` - Icon component
+- `@fortawesome/free-solid-svg-icons` - Arrow right icon
+- AOS library - Zoom-in scroll animation

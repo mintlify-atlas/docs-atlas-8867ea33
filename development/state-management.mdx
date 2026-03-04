@@ -1,0 +1,500 @@
+---
+title: 'State Management'
+description: 'Context API implementation and state management patterns in Jasper Pet Shop'
+---
+
+## Overview
+
+Jasper Pet Shop uses React Context API for global state management, providing a lightweight solution for managing the shopping cart, UI state, and shared data without external dependencies.
+
+## Why Context API?
+
+For an application of this size, Context API provides several advantages:
+
+<CardGroup cols={2}>
+  <Card title="Zero Dependencies" icon="cube">
+    No additional libraries needed - built into React
+  </Card>
+  
+  <Card title="Type Safe" icon="shield">
+    Full TypeScript support with strict typing
+  </Card>
+  
+  <Card title="Simple" icon="check">
+    Easy to understand and maintain
+  </Card>
+  
+  <Card title="Performant" icon="bolt">
+    Sufficient for small to medium applications
+  </Card>
+</CardGroup>
+
+## Cart Context Implementation
+
+The shopping cart is the primary example of global state in Jasper Pet Shop:
+
+### Context Definition
+
+```typescript src/context/CartContext.tsx
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { Product } from '../data/products';
+
+interface CartItem extends Product {
+    quantity: number;
+    selectedSize?: string;
+}
+
+interface CartContextType {
+    cartItems: CartItem[];
+    addToCart: (product: Product, size?: string, price?: string) => void;
+    removeFromCart: (productId: number, size?: string) => void;
+    updateQuantity: (productId: number, quantity: number, size?: string) => void;
+    clearCart: () => void;
+    cartCount: number;
+    cartTotal: number;
+    isCartOpen: boolean;
+    setIsCartOpen: (isOpen: boolean) => void;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+```
+
+<Note>
+  Setting the context type to `CartContextType | undefined` allows us to provide better error handling in the custom hook.
+</Note>
+
+### Provider Component
+
+```typescript src/context/CartContext.tsx
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    // Initialize state from localStorage
+    const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+        if (typeof window !== 'undefined') {
+            const savedCart = localStorage.getItem('jasper_cart');
+            if (savedCart) {
+                try {
+                    return JSON.parse(savedCart);
+                } catch (e) {
+                    console.error("Failed to parse cart", e);
+                }
+            }
+        }
+        return [];
+    });
+    
+    const [isCartOpen, setIsCartOpen] = useState(false);
+
+    // Persist to localStorage
+    useEffect(() => {
+        localStorage.setItem('jasper_cart', JSON.stringify(cartItems));
+    }, [cartItems]);
+
+    // Cart operations
+    const addToCart = (product: Product, size?: string, price?: string) => {
+        setCartItems(prev => {
+            const existing = prev.find(item => 
+                item.id === product.id && item.selectedSize === size
+            );
+            
+            if (existing) {
+                return prev.map(item =>
+                    (item.id === product.id && item.selectedSize === size)
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
+                );
+            }
+            
+            return [...prev, { 
+                ...product, 
+                price: price || product.price, 
+                selectedSize: size, 
+                quantity: 1 
+            }];
+        });
+        setIsCartOpen(true);
+    };
+
+    const removeFromCart = (productId: number, size?: string) => {
+        setCartItems(prev => prev.filter(item => 
+            !(item.id === productId && item.selectedSize === size)
+        ));
+    };
+
+    const updateQuantity = (productId: number, quantity: number, size?: string) => {
+        if (quantity <= 0) {
+            removeFromCart(productId, size);
+            return;
+        }
+        setCartItems(prev => prev.map(item =>
+            (item.id === productId && item.selectedSize === size)
+                ? { ...item, quantity }
+                : item
+        ));
+    };
+
+    const clearCart = () => setCartItems([]);
+
+    // Derived state
+    const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    const cartTotal = cartItems.reduce((acc, item) => {
+        const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''));
+        return acc + (priceNum * item.quantity);
+    }, 0);
+
+    return (
+        <CartContext.Provider value={{
+            cartItems,
+            addToCart,
+            removeFromCart,
+            updateQuantity,
+            clearCart,
+            cartCount,
+            cartTotal,
+            isCartOpen,
+            setIsCartOpen
+        }}>
+            {children}
+        </CartContext.Provider>
+    );
+};
+```
+
+### Custom Hook
+
+```typescript src/context/CartContext.tsx
+export const useCart = () => {
+    const context = useContext(CartContext);
+    if (!context) {
+        throw new Error('useCart must be used within a CartProvider');
+    }
+    return context;
+};
+```
+
+<Tip>
+  Always create a custom hook for your context. It provides better error messages and ensures the context is used correctly.
+</Tip>
+
+## State Persistence
+
+### localStorage Integration
+
+The cart state persists across page refreshes using localStorage:
+
+```typescript
+// Initialize from localStorage
+const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (typeof window !== 'undefined') {
+        const savedCart = localStorage.getItem('jasper_cart');
+        if (savedCart) {
+            try {
+                return JSON.parse(savedCart);
+            } catch (e) {
+                console.error("Failed to parse cart", e);
+            }
+        }
+    }
+    return [];
+});
+
+// Save to localStorage on changes
+useEffect(() => {
+    localStorage.setItem('jasper_cart', JSON.stringify(cartItems));
+}, [cartItems]);
+```
+
+<Warning>
+  Always wrap localStorage access in `typeof window !== 'undefined'` checks to prevent errors during server-side rendering.
+</Warning>
+
+## Using Context in Components
+
+### Basic Usage
+
+```typescript src/components/ProductCard.tsx
+import { useCart } from '../context/CartContext';
+
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+    const { addToCart } = useCart();
+    const [selectedSize, setSelectedSize] = useState(product.variants?.[0]?.size || '');
+    const [currentPrice, setCurrentPrice] = useState(product.variants?.[0]?.price || product.price);
+
+    const handleAddToCart = () => {
+        addToCart(product, selectedSize, currentPrice);
+    };
+
+    return (
+        <button onClick={handleAddToCart}>
+            Añadir al Carrito
+        </button>
+    );
+};
+```
+
+### Accessing Multiple Values
+
+```typescript src/components/CartDrawer.tsx
+import { useCart } from '../context/CartContext';
+
+export const CartDrawer = () => {
+    const { 
+        cartItems, 
+        cartCount, 
+        cartTotal, 
+        isCartOpen, 
+        setIsCartOpen,
+        updateQuantity,
+        removeFromCart,
+        clearCart 
+    } = useCart();
+
+    return (
+        <div>
+            <h2>Cart ({cartCount})</h2>
+            {cartItems.map(item => (
+                <div key={`${item.id}-${item.selectedSize}`}>
+                    {/* Cart item display */}
+                </div>
+            ))}
+            <p>Total: S/ {cartTotal.toLocaleString()}</p>
+        </div>
+    );
+};
+```
+
+## State Update Patterns
+
+### Immutable Updates
+
+Always create new arrays/objects when updating state:
+
+```typescript
+// ✅ Good - creates new array
+setCartItems(prev => [...prev, newItem]);
+
+// ❌ Bad - mutates array
+setCartItems(prev => {
+    prev.push(newItem);
+    return prev;
+});
+
+// ✅ Good - creates new array with updated item
+setCartItems(prev => prev.map(item =>
+    item.id === id ? { ...item, quantity: newQuantity } : item
+));
+
+// ❌ Bad - mutates item
+setCartItems(prev => {
+    const item = prev.find(i => i.id === id);
+    item.quantity = newQuantity;
+    return prev;
+});
+```
+
+### Conditional Updates
+
+```typescript
+const addToCart = (product: Product, size?: string, price?: string) => {
+    setCartItems(prev => {
+        // Check if item exists
+        const existing = prev.find(item => 
+            item.id === product.id && item.selectedSize === size
+        );
+        
+        if (existing) {
+            // Update existing item
+            return prev.map(item =>
+                (item.id === product.id && item.selectedSize === size)
+                    ? { ...item, quantity: item.quantity + 1 }
+                    : item
+            );
+        }
+        
+        // Add new item
+        return [...prev, { ...product, price, selectedSize: size, quantity: 1 }];
+    });
+};
+```
+
+## Derived State
+
+Compute values from existing state rather than storing duplicates:
+
+```typescript
+// ✅ Good - computed on every render
+const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+const cartTotal = cartItems.reduce((acc, item) => {
+    const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''));
+    return acc + (priceNum * item.quantity);
+}, 0);
+
+// ❌ Bad - storing derived state
+const [cartCount, setCartCount] = useState(0);
+const [cartTotal, setCartTotal] = useState(0);
+// Now you need to keep these in sync manually
+```
+
+<Note>
+  For expensive computations, use `useMemo` to optimize derived state.
+</Note>
+
+## Performance Optimization
+
+### Memoization
+
+Optimize expensive calculations:
+
+```typescript
+import { useMemo } from 'react';
+
+const cartTotal = useMemo(() => {
+    return cartItems.reduce((acc, item) => {
+        const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''));
+        return acc + (priceNum * item.quantity);
+    }, 0);
+}, [cartItems]);
+```
+
+### Context Splitting
+
+For larger apps, split contexts to prevent unnecessary re-renders:
+
+```typescript
+// Separate contexts for different concerns
+const CartItemsContext = createContext<CartItem[]>([]);
+const CartActionsContext = createContext<CartActions>(null!);
+
+// Components only re-render when their subscribed context changes
+function CartCount() {
+    const items = useContext(CartItemsContext);
+    return <span>{items.length}</span>;
+}
+```
+
+## Error Handling
+
+### Context Consumer Errors
+
+```typescript
+export const useCart = () => {
+    const context = useContext(CartContext);
+    
+    if (!context) {
+        throw new Error(
+            'useCart must be used within a CartProvider. ' +
+            'Wrap your component tree with <CartProvider>.'
+        );
+    }
+    
+    return context;
+};
+```
+
+### State Update Errors
+
+```typescript
+const updateQuantity = (productId: number, quantity: number, size?: string) => {
+    try {
+        if (quantity < 0) {
+            console.warn('Quantity cannot be negative');
+            return;
+        }
+        
+        if (quantity === 0) {
+            removeFromCart(productId, size);
+            return;
+        }
+        
+        setCartItems(prev => prev.map(item =>
+            (item.id === productId && item.selectedSize === size)
+                ? { ...item, quantity }
+                : item
+        ));
+    } catch (error) {
+        console.error('Failed to update quantity:', error);
+    }
+};
+```
+
+## Testing Context
+
+### Test Provider Wrapper
+
+```typescript
+import { render } from '@testing-library/react';
+import { CartProvider } from '../context/CartContext';
+
+const renderWithCart = (component: React.ReactElement) => {
+    return render(
+        <CartProvider>
+            {component}
+        </CartProvider>
+    );
+};
+
+// Usage in tests
+test('adds item to cart', () => {
+    const { getByText } = renderWithCart(<ProductCard product={mockProduct} />);
+    // ... test logic
+});
+```
+
+## When to Use Context
+
+<Tabs>
+  <Tab title="Good Use Cases">
+    - Shopping cart state
+    - User authentication
+    - Theme preferences
+    - UI state (modals, drawers)
+    - Language/localization
+  </Tab>
+  
+  <Tab title="Bad Use Cases">
+    - Highly frequent updates (use local state)
+    - Server cache (use React Query/SWR)
+    - Form state (use local state or form libraries)
+    - Animation state (use local state)
+  </Tab>
+</Tabs>
+
+## Alternative: Component Composition
+
+Sometimes props drilling is better than context:
+
+```typescript
+// Instead of context for 1-2 levels
+function App() {
+    const [user, setUser] = useState(null);
+    
+    return (
+        <Dashboard user={user}>
+            <Header user={user} />
+            <Content user={user} />
+        </Dashboard>
+    );
+}
+
+// Use context for deep nesting
+function App() {
+    return (
+        <UserProvider>
+            <Dashboard>
+                <Header />        {/* No props needed */}
+                <Content />       {/* No props needed */}
+            </Dashboard>
+        </UserProvider>
+    );
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Shopping Cart" icon="cart-shopping" href="/features/shopping-cart">
+    See the full cart implementation
+  </Card>
+  <Card title="Project Structure" icon="folder-tree" href="/development/project-structure">
+    Understand where context files live
+  </Card>
+</CardGroup>

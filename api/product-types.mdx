@@ -1,0 +1,190 @@
+---
+title: "Product Types"
+description: "TypeScript interfaces for product data structure"
+---
+
+## Product
+
+The main product interface representing items in the Jasper Pet Shop catalog.
+
+### Type Definition
+
+```typescript
+export interface Product {
+  id: number;
+  name: string;
+  price: string;
+  category: string;
+  image: string;
+  description: string;
+  variants?: ProductVariant[];
+}
+```
+
+### Fields
+
+<ResponseField name="id" type="number" required>
+  Unique identifier for the product
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Display name of the product
+</ResponseField>
+
+<ResponseField name="price" type="string" required>
+  Base price with currency symbol (e.g., "S/ 899")
+</ResponseField>
+
+<ResponseField name="category" type="string" required>
+  Product category (e.g., "Sofás", "Camas", "Accesorios")
+</ResponseField>
+
+<ResponseField name="image" type="string" required>
+  URL to the product image
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Detailed product description
+</ResponseField>
+
+<ResponseField name="variants" type="ProductVariant[]">
+  Optional array of size/price variants for the product
+</ResponseField>
+
+### Usage Example
+
+```typescript
+import type { Product } from './data/products';
+
+const product: Product = {
+  id: 1,
+  name: "Sofa Royal Velvet",
+  price: "S/ 899",
+  category: "Sofás",
+  image: "https://images.unsplash.com/photo-1541599540903-216a46ca1df0",
+  description: "Terciopelo italiano de alta resistencia con base de madera sólida.",
+  variants: [
+    { size: "S", price: "S/ 899" },
+    { size: "M", price: "S/ 1,099" },
+    { size: "L", price: "S/ 1,299" }
+  ]
+};
+```
+
+---
+
+## ProductVariant
+
+Represents different size and price options for a product.
+
+### Type Definition
+
+```typescript
+export interface ProductVariant {
+  size: string;
+  price: string;
+}
+```
+
+### Fields
+
+<ResponseField name="size" type="string" required>
+  Size label (e.g., "S", "M", "L", "Small", "Medium", "Large", "2 Pasos")
+</ResponseField>
+
+<ResponseField name="price" type="string" required>
+  Price for this variant with currency symbol (e.g., "S/ 1,099")
+</ResponseField>
+
+### Usage Example
+
+```typescript
+import type { ProductVariant } from './data/products';
+
+const variants: ProductVariant[] = [
+  { size: "Small", price: "S/ 650" },
+  { size: "Medium", price: "S/ 750" },
+  { size: "Large", price: "S/ 850" }
+];
+```
+
+---
+
+## products Array
+
+Exported array containing all available products in the catalog.
+
+### Type Definition
+
+```typescript
+export const products: Product[];
+```
+
+### Structure
+
+The array contains 8 products across three categories:
+
+**Sofás (Sofas):**
+- Sofa Royal Velvet (with variants)
+- Sofá Moderno Gris
+
+**Camas (Beds):**
+- Cama Nube Memory (with variants)
+- Cama Imperial Gold (with variants)
+- Cama Ortopédica Pro
+- Cama Redonda Zen
+
+**Accesorios (Accessories):**
+- Escalera Minimal (with variants)
+- Set de Mantas Silk
+
+### Usage Example
+
+```typescript
+import { products } from './data/products';
+
+// Get all products
+const allProducts = products;
+
+// Filter by category
+const beds = products.filter(p => p.category === 'Camas');
+
+// Find by ID
+const product = products.find(p => p.id === 1);
+
+// Get products with variants
+const productsWithVariants = products.filter(p => p.variants && p.variants.length > 0);
+```
+
+### Example Product Entries
+
+**With Variants:**
+
+```typescript
+{
+  id: 1,
+  name: "Sofa Royal Velvet",
+  price: "S/ 899",
+  category: "Sofás",
+  image: "https://images.unsplash.com/photo-1541599540903-216a46ca1df0?auto=format&fit=crop&q=80&w=800",
+  description: "Terciopelo italiano de alta resistencia con base de madera sólida.",
+  variants: [
+    { size: "S", price: "S/ 899" },
+    { size: "M", price: "S/ 1,099" },
+    { size: "L", price: "S/ 1,299" }
+  ]
+}
+```
+
+**Without Variants:**
+
+```typescript
+{
+  id: 5,
+  name: "Sofá Moderno Gris",
+  price: "S/ 750",
+  category: "Sofás",
+  image: "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=800",
+  description: "Elegancia minimalista que combina con cualquier sala."
+}
+```

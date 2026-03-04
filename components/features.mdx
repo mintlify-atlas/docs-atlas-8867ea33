@@ -1,0 +1,333 @@
+---
+title: 'Features'
+description: 'Grid of feature highlights showcasing key product and service benefits'
+---
+
+## Overview
+
+The `Features` component displays a grid of four key value propositions using icons and descriptive text. It provides a quick overview of the main benefits customers can expect from Jasper Pet Shop.
+
+## Import
+
+```tsx
+import { Features } from '../components/Features';
+```
+
+## Usage
+
+```tsx
+import { Features } from './components/Features';
+
+function HomePage() {
+  return (
+    <>
+      <Hero />
+      <Features /> {/* Feature highlights section */}
+      {/* Other sections */}
+    </>
+  );
+}
+```
+
+## Features Data
+
+The component displays four key features:
+
+```tsx
+const features = [
+  { 
+    icon: faTruck, 
+    title: "Envío Express", 
+    desc: "Delivery seguro a todo el país." 
+  },
+  { 
+    icon: faShieldHalved, 
+    title: "Premium", 
+    desc: "Materiales de alta durabilidad." 
+  },
+  { 
+    icon: faHeart, 
+    title: "Ergonómico", 
+    desc: "Cuidado de sus articulaciones." 
+  },
+  { 
+    icon: faComment, 
+    title: "Soporte 24/7", 
+    desc: "Atención personalizada." 
+  }
+];
+```
+
+<CardGroup cols={2}>
+  <Card title="Envío Express" icon="truck">
+    Delivery seguro a todo el país
+  </Card>
+  <Card title="Premium" icon="shield-halved">
+    Materiales de alta durabilidad
+  </Card>
+  <Card title="Ergonómico" icon="heart">
+    Cuidado de sus articulaciones
+  </Card>
+  <Card title="Soporte 24/7" icon="comment">
+    Atención personalizada
+  </Card>
+</CardGroup>
+
+## Component Structure
+
+```tsx
+export const Features = () => {
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid md:grid-cols-4 gap-12">
+          {features.map((f, i) => (
+            <div key={i} className="group" data-aos="fade-up" 
+                 data-aos-delay={i * 100}>
+              {/* Icon */}
+              <div className="mb-6 w-14 h-14 rounded-2xl bg-[#fcfaf7] 
+                              flex items-center justify-center 
+                              group-hover:bg-[#D4AF37] 
+                              transition-all duration-500 
+                              transform group-hover:-rotate-6">
+                <FontAwesomeIcon 
+                  icon={f.icon} 
+                  className="text-[#D4AF37] group-hover:text-white 
+                             transition-colors text-2xl" 
+                />
+              </div>
+              
+              {/* Title */}
+              <h3 className="text-lg font-bold mb-2 tracking-tight">
+                {f.title}
+              </h3>
+              
+              {/* Description */}
+              <p className="text-sm text-gray-400 leading-relaxed">
+                {f.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+```
+
+## Layout
+
+### Grid Structure
+
+<Tabs>
+  <Tab title="Mobile (< md)">
+    Single column layout with each feature stacked vertically
+  </Tab>
+  <Tab title="Desktop (md+)">
+    Four column grid: `md:grid-cols-4`
+    
+    Equal width columns with 12px gap
+  </Tab>
+</Tabs>
+
+### Spacing
+
+<ParamField path="Section Padding" type="spacing">
+  `py-20` - Vertical padding of 80px (5rem)
+</ParamField>
+
+<ParamField path="Grid Gap" type="spacing">
+  `gap-12` - 48px (3rem) between feature cards
+</ParamField>
+
+<ParamField path="Max Width" type="spacing">
+  `max-w-7xl` - Container limited to 1280px
+</ParamField>
+
+## Icon Container
+
+Each feature has an animated icon container:
+
+### Default State
+
+```tsx
+className="w-14 h-14 rounded-2xl bg-[#fcfaf7] 
+          flex items-center justify-center"
+```
+
+- Size: `56x56px` (3.5rem)
+- Background: `#fcfaf7` (light cream)
+- Border radius: `rounded-2xl` (16px)
+- Icon color: `#D4AF37` (gold)
+
+### Hover State
+
+```tsx
+group-hover:bg-[#D4AF37]      // Gold background
+group-hover:text-white         // White icon
+group-hover:-rotate-6          // Slight rotation
+transition-all duration-500    // Smooth animation
+```
+
+<Info>
+  The `-rotate-6` transform creates a playful tilt effect on hover, adding personality to the design.
+</Info>
+
+## Typography
+
+<ParamField path="Title" type="text">
+  - Size: `text-lg` (18px)
+  - Weight: `font-bold`
+  - Tracking: `tracking-tight`
+  - Spacing: `mb-2` bottom margin
+</ParamField>
+
+<ParamField path="Description" type="text">
+  - Size: `text-sm` (14px)
+  - Color: `text-gray-400`
+  - Line height: `leading-relaxed`
+</ParamField>
+
+## Animations
+
+Each feature card uses AOS (Animate On Scroll):
+
+```tsx
+data-aos="fade-up" 
+data-aos-delay={i * 100}
+```
+
+### Staggered Animation
+
+<Steps>
+  <Step title="Feature 1">
+    Fades up with 0ms delay
+  </Step>
+  <Step title="Feature 2">
+    Fades up with 100ms delay
+  </Step>
+  <Step title="Feature 3">
+    Fades up with 200ms delay
+  </Step>
+  <Step title="Feature 4">
+    Fades up with 300ms delay
+  </Step>
+</Steps>
+
+This creates a cascading effect as the user scrolls to the section.
+
+## Styling Guide
+
+### Colors
+
+| Element | Default | Hover |
+|---------|---------|-------|
+| Icon Background | `#fcfaf7` | `#D4AF37` |
+| Icon Color | `#D4AF37` | White |
+| Title | Black | - |
+| Description | Gray 400 | - |
+
+### Hover Effects
+
+The entire card is wrapped in a `group` class, enabling coordinated hover effects:
+
+```tsx
+<div className="group">
+  <div className="group-hover:bg-[#D4AF37] group-hover:-rotate-6">
+    <FontAwesomeIcon className="group-hover:text-white" />
+  </div>
+</div>
+```
+
+## Customization
+
+### Adding New Features
+
+To add more features, simply extend the array:
+
+```tsx
+const features = [
+  // Existing features...
+  { 
+    icon: faLeaf, 
+    title: "Eco-Friendly", 
+    desc: "Materiales sustentables." 
+  },
+];
+```
+
+### Changing Grid Columns
+
+Adjust the grid for different layouts:
+
+```tsx
+// 3 columns
+className="grid md:grid-cols-3 gap-12"
+
+// 2 columns
+className="grid md:grid-cols-2 gap-12"
+
+// 6 columns
+className="grid md:grid-cols-2 lg:grid-cols-6 gap-8"
+```
+
+## Responsive Behavior
+
+<CardGroup cols={3}>
+  <Card title="Mobile">
+    **< 768px**
+    
+    Single column
+    
+    Stacked vertically
+    
+    Full width cards
+  </Card>
+  <Card title="Tablet">
+    **768px - 1024px**
+    
+    4 columns may wrap
+    
+    to 2 rows on smaller
+    
+    tablet devices
+  </Card>
+  <Card title="Desktop">
+    **1024px+**
+    
+    4 columns in single row
+    
+    Optimal spacing
+    
+    Comfortable reading
+  </Card>
+</CardGroup>
+
+## Integration Example
+
+```tsx
+import { Hero } from './components/Hero';
+import { Features } from './components/Features';
+import { Products } from './components/Products';
+
+function HomePage() {
+  return (
+    <main>
+      <Hero />
+      <Features />  {/* Appears right after hero */}
+      <Products />
+      {/* More sections */}
+    </main>
+  );
+}
+```
+
+## Dependencies
+
+- `@fortawesome/react-fontawesome` - Icon component
+- `@fortawesome/free-solid-svg-icons` - Icon set:
+  - `faTruck` - Delivery icon
+  - `faShieldHalved` - Premium/protection icon
+  - `faHeart` - Care/love icon
+  - `faComment` - Support/communication icon
+- AOS library - Scroll animations

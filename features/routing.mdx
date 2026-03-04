@@ -1,0 +1,376 @@
+---
+title: 'Routing'
+description: 'Navigation and routing implementation with React Router DOM v7'
+---
+
+## Overview
+
+Jasper Pet Shop uses React Router DOM v7.13.1 for client-side routing, providing seamless navigation between pages with scroll restoration and hash link support.
+
+## Router Configuration
+
+The router is configured in `src/App.tsx` using BrowserRouter:
+
+```typescript src/App.tsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Home } from './pages/Home';
+import { Catalog } from './pages/Catalog';
+
+export default function App() {
+    return (
+        <CartProvider>
+            <Router>
+                <ScrollToTop />
+                <div className="overflow-hidden min-h-screen bg-[#fcfaf7]">
+                    <Navbar />
+                    <CartDrawer />
+                    <main>
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/catalogo" element={<Catalog />} />
+                        </Routes>
+                    </main>
+                    <Footer />
+                </div>
+            </Router>
+        </CartProvider>
+    );
+}
+```
+
+<Note>
+  The `Router` wraps the entire application, making routing context available to all components.
+</Note>
+
+## Application Routes
+
+<Tabs>
+  <Tab title="Home Route">
+    **Path:** `/`
+    
+    **Component:** `Home`
+    
+    The home page displays:
+    - Hero section with branding
+    - Features showcase
+    - About section
+    - Featured products
+    - Social media integration
+    - Call-to-action section
+    
+    ```typescript src/pages/Home.tsx
+    export const Home = () => {
+        return (
+            <>
+                <Hero />
+                <Features />
+                <About />
+                <Products />
+                <SocialSection />
+                <CTA />
+            </>
+        );
+    };
+    ```
+  </Tab>
+  
+  <Tab title="Catalog Route">
+    **Path:** `/catalogo`
+    
+    **Component:** `Catalog`
+    
+    The catalog page displays:
+    - Category filter buttons
+    - Product grid with all items
+    - Real-time filtering
+    - Animated product cards
+    
+    ```typescript src/pages/Catalog.tsx
+    export const Catalog = () => {
+        const [selectedCategory, setSelectedCategory] = useState('Todos');
+        
+        const filteredProducts = selectedCategory === 'Todos'
+            ? products
+            : products.filter(p => p.category === selectedCategory);
+        
+        return (
+            <div className="pt-32 pb-20 bg-[#fcfaf7] min-h-screen">
+                {/* Category filters and product grid */}
+            </div>
+        );
+    };
+    ```
+  </Tab>
+</Tabs>
+
+## Scroll to Top Utility
+
+The `ScrollToTop` component ensures the page scrolls to top on route changes:
+
+```typescript src/App.tsx
+import { useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+    const { pathname, hash } = useLocation();
+
+    React.useEffect(() => {
+        if (hash) {
+            // Handle hash links (e.g., /#productos)
+            const timer = setTimeout(() => {
+                const element = document.getElementById(hash.replace('#', ''));
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
+            return () => clearTimeout(timer);
+        } else {
+            // Scroll to top on route change
+            window.scrollTo(0, 0);
+        }
+    }, [pathname, hash]);
+
+    return null;
+}
+```
+
+<Tip>
+  The 100ms timeout ensures DOM elements are rendered before attempting to scroll to hash targets.
+</Tip>
+
+## Navigation Implementation
+
+### Using Link Component
+
+Navigate between routes using the `Link` component:
+
+```typescript
+import { Link } from 'react-router-dom';
+
+function Navigation() {
+    return (
+        <nav>
+            <Link to="/">Inicio</Link>
+            <Link to="/catalogo">Catálogo</Link>
+        </nav>
+    );
+}
+```
+
+### Programmatic Navigation
+
+Navigate programmatically using `useNavigate`:
+
+```typescript
+import { useNavigate } from 'react-router-dom';
+
+function MyComponent() {
+    const navigate = useNavigate();
+    
+    const handleClick = () => {
+        navigate('/catalogo');
+    };
+    
+    return <button onClick={handleClick}>View Catalog</button>;
+}
+```
+
+## Hash Link Navigation
+
+The home page uses hash links for smooth scrolling to sections:
+
+```typescript
+<a href="/#inicio">Inicio</a>
+<a href="/#nosotros">Nosotros</a>
+<a href="/#productos">Productos</a>
+<a href="/#contacto">Contacto</a>
+```
+
+Sections are marked with matching IDs:
+
+```typescript
+<section id="inicio">
+    {/* Hero content */}
+</section>
+
+<section id="productos">
+    {/* Products content */}
+</section>
+```
+
+<Note>
+  Hash links work seamlessly with the `ScrollToTop` component, which handles smooth scrolling to the target element.
+</Note>
+
+## Active Link Styling
+
+Highlight active navigation links using `useLocation`:
+
+```typescript
+import { useLocation, Link } from 'react-router-dom';
+
+function Navigation() {
+    const location = useLocation();
+    
+    const isActive = (path: string) => location.pathname === path;
+    
+    return (
+        <nav>
+            <Link 
+                to="/" 
+                className={isActive('/') ? 'text-[#D4AF37]' : 'text-gray-600'}
+            >
+                Inicio
+            </Link>
+            <Link 
+                to="/catalogo" 
+                className={isActive('/catalogo') ? 'text-[#D4AF37]' : 'text-gray-600'}
+            >
+                Catálogo
+            </Link>
+        </nav>
+    );
+}
+```
+
+## Route Protection (Future)
+
+While not currently implemented, you can add protected routes:
+
+```typescript
+import { Navigate } from 'react-router-dom';
+
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+    const isAuthenticated = useAuth();
+    
+    if (!isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
+    
+    return children;
+}
+
+// Usage
+<Route 
+    path="/admin" 
+    element={
+        <ProtectedRoute>
+            <AdminPanel />
+        </ProtectedRoute>
+    } 
+/>
+```
+
+## 404 Not Found Page
+
+Add a catch-all route for non-existent paths:
+
+```typescript
+import { Routes, Route } from 'react-router-dom';
+
+function NotFound() {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <h1 className="text-6xl font-bold mb-4">404</h1>
+                <p className="text-xl text-gray-500 mb-8">Página no encontrada</p>
+                <Link to="/" className="bg-[#1a1a1a] text-white px-8 py-4 rounded-xl">
+                    Volver al Inicio
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+<Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/catalogo" element={<Catalog />} />
+    <Route path="*" element={<NotFound />} />
+</Routes>
+```
+
+## Router Performance
+
+<CardGroup cols={2}>
+  <Card title="Code Splitting" icon="scissors">
+    Use React.lazy for route-based code splitting:
+    
+    ```typescript
+    const Catalog = React.lazy(() => import('./pages/Catalog'));
+    
+    <Suspense fallback={<Loading />}>
+        <Route path="/catalogo" element={<Catalog />} />
+    </Suspense>
+    ```
+  </Card>
+  
+  <Card title="Preloading" icon="bolt">
+    Preload routes on hover:
+    
+    ```typescript
+    <Link 
+        to="/catalogo"
+        onMouseEnter={() => import('./pages/Catalog')}
+    >
+        Catálogo
+    </Link>
+    ```
+  </Card>
+</CardGroup>
+
+## URL Parameters
+
+Add dynamic routes with parameters:
+
+```typescript
+// Route definition
+<Route path="/producto/:id" element={<ProductDetail />} />
+
+// Component implementation
+import { useParams } from 'react-router-dom';
+
+function ProductDetail() {
+    const { id } = useParams();
+    const product = products.find(p => p.id === parseInt(id || ''));
+    
+    return (
+        <div>
+            <h1>{product?.name}</h1>
+        </div>
+    );
+}
+```
+
+## Query Parameters
+
+Read and update query parameters:
+
+```typescript
+import { useSearchParams } from 'react-router-dom';
+
+function Catalog() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    
+    const category = searchParams.get('category') || 'Todos';
+    
+    const handleCategoryChange = (newCategory: string) => {
+        setSearchParams({ category: newCategory });
+    };
+    
+    return (
+        <button onClick={() => handleCategoryChange('Camas')}>
+            Camas
+        </button>
+    );
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Project Structure" icon="folder-tree" href="/development/project-structure">
+    Learn about page and component organization
+  </Card>
+  <Card title="Animations" icon="wand-magic-sparkles" href="/features/animations">
+    Explore page transition animations
+  </Card>
+</CardGroup>

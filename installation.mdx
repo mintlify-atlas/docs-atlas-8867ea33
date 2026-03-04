@@ -1,0 +1,199 @@
+---
+title: 'Installation'
+description: 'Complete installation and setup guide for Jasper Pet Shop'
+---
+
+## Prerequisites
+
+Before installing Jasper Pet Shop, ensure you have the following installed:
+
+<CardGroup cols={2}>
+  <Card title="Node.js" icon="node">
+    Version 18.0 or higher recommended
+  </Card>
+  <Card title="npm" icon="npm">
+    Version 8.0 or higher (comes with Node.js)
+  </Card>
+</CardGroup>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Clone Repository">
+    Clone the project from your repository:
+    
+    ```bash
+    git clone https://github.com/yourusername/jasperpetshop.git
+    cd jasperpetshop
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    Install all required npm packages:
+    
+    ```bash
+    npm install
+    ```
+    
+    <Tip>
+      If you encounter peer dependency warnings, you can safely ignore them or use `npm install --legacy-peer-deps`
+    </Tip>
+  </Step>
+
+  <Step title="Verify Installation">
+    Verify the installation was successful:
+    
+    ```bash
+    npm run dev
+    ```
+    
+    You should see output similar to:
+    ```
+    VITE v7.3.1  ready in 500 ms
+    
+    ➜  Local:   http://localhost:5173/
+    ➜  Network: use --host to expose
+    ```
+  </Step>
+</Steps>
+
+## Project Dependencies
+
+Jasper Pet Shop relies on the following key dependencies:
+
+### Core Framework
+
+<CodeGroup>
+
+```json React & TypeScript
+{
+  "react": "^19.2.0",
+  "react-dom": "^19.2.0",
+  "typescript": "~5.9.3"
+}
+```
+
+```json Build Tools
+{
+  "vite": "^7.3.1",
+  "@vitejs/plugin-react": "^5.1.1"
+}
+```
+
+</CodeGroup>
+
+### Styling & UI
+
+```json
+{
+  "tailwindcss": "^4.2.1",
+  "@tailwindcss/vite": "^4.2.1",
+  "@fortawesome/react-fontawesome": "^3.2.0",
+  "@fortawesome/free-solid-svg-icons": "^7.2.0",
+  "@fortawesome/free-brands-svg-icons": "^7.2.0"
+}
+```
+
+### Routing & Animation
+
+```json
+{
+  "react-router-dom": "^7.13.1",
+  "framer-motion": "^12.34.4",
+  "aos": "^2.3.4"
+}
+```
+
+<Note>
+  All dependencies are specified in `package.json` and will be automatically installed with `npm install`
+</Note>
+
+## TypeScript Configuration
+
+The project uses TypeScript with strict mode enabled for type safety:
+
+```json tsconfig.app.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+## Vite Configuration
+
+Vite is configured with React and TailwindCSS plugins:
+
+```typescript vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+})
+```
+
+<Warning>
+  Do not modify the Vite configuration unless you understand the implications. The current setup is optimized for React with TailwindCSS.
+</Warning>
+
+## Environment Setup
+
+Jasper Pet Shop doesn't require environment variables for basic functionality. However, if you plan to customize the WhatsApp integration, you may want to create a `.env` file:
+
+```bash .env (optional)
+VITE_WHATSAPP_NUMBER=51903433063
+VITE_BUSINESS_NAME=JASPERPETSHOP
+```
+
+<Tip>
+  Environment variables in Vite must be prefixed with `VITE_` to be accessible in your code via `import.meta.env`
+</Tip>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Port 5173 is already in use">
+    If port 5173 is already in use, Vite will automatically try the next available port. You can also specify a custom port:
+    
+    ```bash
+    npm run dev -- --port 3000
+    ```
+  </Accordion>
+
+  <Accordion title="Module not found errors">
+    Delete `node_modules` and reinstall:
+    
+    ```bash
+    rm -rf node_modules package-lock.json
+    npm install
+    ```
+  </Accordion>
+
+  <Accordion title="TypeScript errors">
+    Ensure you're using TypeScript 5.9.3 or compatible version:
+    
+    ```bash
+    npm install typescript@~5.9.3
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Project Structure" icon="folder-tree" href="/development/project-structure">
+    Learn about the codebase organization
+  </Card>
+  <Card title="Styling Guide" icon="palette" href="/development/styling">
+    Understand the TailwindCSS setup
+  </Card>
+</CardGroup>

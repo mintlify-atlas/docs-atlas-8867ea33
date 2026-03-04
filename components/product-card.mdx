@@ -1,0 +1,331 @@
+---
+title: 'ProductCard'
+description: 'Interactive product card with image, variant selection, and add-to-cart functionality'
+---
+
+## Overview
+
+The `ProductCard` component displays individual product information with size variant selection, pricing, and cart integration. It features hover effects and responsive design optimized for both mobile and desktop experiences.
+
+## Import
+
+```tsx
+import { ProductCard } from '../components/ProductCard';
+import type { Product } from '../data/products';
+```
+
+## Props
+
+<ParamField path="product" type="Product" required>
+  The product object containing all product information including:
+  - `id` - Unique identifier
+  - `name` - Product name
+  - `category` - Product category
+  - `price` - Base price (string format)
+  - `image` - Product image URL
+  - `variants` - Optional array of size/price variants
+</ParamField>
+
+<ParamField path="delay" type="number" default="0">
+  Animation delay in milliseconds for AOS (Animate On Scroll) effects
+</ParamField>
+
+## Usage
+
+### Basic Usage
+
+```tsx
+import { ProductCard } from './components/ProductCard';
+import { products } from './data/products';
+
+function ProductGrid() {
+  return (
+    <div className="grid md:grid-cols-3 gap-8">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
+}
+```
+
+### With Animation Delay
+
+```tsx
+<div className="grid md:grid-cols-4 gap-10">
+  {products.map((product, i) => (
+    <ProductCard 
+      key={product.id} 
+      product={product} 
+      delay={i * 100} // Stagger animations
+    />
+  ))}
+</div>
+```
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Variant Selection" icon="sliders">
+    Dynamic size selection with price updates
+  </Card>
+  <Card title="Cart Integration" icon="cart-plus">
+    Add to cart with selected variant
+  </Card>
+  <Card title="Hover Effects" icon="hand-pointer">
+    Image zoom and button reveal on desktop
+  </Card>
+  <Card title="Responsive Design" icon="mobile-screen">
+    Optimized layouts for mobile and desktop
+  </Card>
+</CardGroup>
+
+## State Management
+
+The component manages two pieces of local state:
+
+<ParamField path="selectedSize" type="string">
+  Currently selected size variant. Defaults to the first variant's size.
+</ParamField>
+
+<ParamField path="currentPrice" type="string">
+  Price of the currently selected variant. Updates when size changes.
+</ParamField>
+
+```tsx
+const [selectedSize, setSelectedSize] = React.useState(
+  product.variants?.[0]?.size || ''
+);
+const [currentPrice, setCurrentPrice] = React.useState(
+  product.variants?.[0]?.price || product.price
+);
+```
+
+## Product Type
+
+```tsx
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: string;
+  image: string;
+  variants?: {
+    size: string;
+    price: string;
+  }[];
+}
+```
+
+## Component Structure
+
+### Image Container
+
+The product image features multiple interactive elements:
+
+```tsx
+<div className="relative aspect-[4/5] rounded-[40px] overflow-hidden 
+                mb-6 bg-white shadow-sm group-hover:shadow-xl 
+                transition-all duration-500">
+  {/* Product Image */}
+  <img 
+    src={product.image}
+    className="transition-transform duration-700 group-hover:scale-110"
+  />
+  
+  {/* Quick Add Button (Top Right) */}
+  <button className="absolute top-6 right-6">
+    <FontAwesomeIcon icon={faPlus} />
+  </button>
+  
+  {/* Add to Cart Button (Bottom - Desktop: Reveal on hover) */}
+  <button className="absolute bottom-6 left-6 right-6 
+                     md:translate-y-24 md:group-hover:translate-y-0">
+    <FontAwesomeIcon icon={faCartShopping} /> Añadir al Carrito
+  </button>
+</div>
+```
+
+<Info>
+  On mobile, the bottom "Add to Cart" button is always visible. On desktop (md+), it slides up on hover.
+</Info>
+
+### Product Info Section
+
+<Steps>
+  <Step title="Header">
+    Displays category, product name, and current price
+  </Step>
+  <Step title="Variant Selector">
+    Size buttons that update selected size and price when clicked
+  </Step>
+</Steps>
+
+```tsx
+<div className="flex flex-col px-2">
+  {/* Header */}
+  <div className="flex justify-between items-start mb-3">
+    <div>
+      <p className="text-[10px] uppercase text-[#D4AF37]">
+        {product.category}
+      </p>
+      <h3 className="text-lg font-serif font-bold">
+        {product.name}
+      </h3>
+    </div>
+    <p className="text-lg font-bold">{currentPrice}</p>
+  </div>
+
+  {/* Variant Buttons */}
+  {product.variants && (
+    <div className="flex flex-wrap gap-2">
+      {product.variants.map((v) => (
+        <button
+          key={v.size}
+          onClick={() => handleSizeChange(v.size, v.price)}
+          className={selectedSize === v.size 
+            ? 'bg-[#D4AF37] text-white' 
+            : 'bg-white text-[#1a1a1a]'}
+        >
+          {v.size}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+```
+
+## Adding to Cart
+
+The component uses the `useCart` hook to add items:
+
+```tsx
+const { addToCart } = useCart();
+
+// When button clicked
+addToCart(product, selectedSize, currentPrice);
+```
+
+<Warning>
+  Always pass the selected size and current price to ensure the cart reflects the user's choices.
+</Warning>
+
+## Variant Selection
+
+When a size variant is clicked:
+
+```tsx
+const handleSizeChange = (size: string, price: string) => {
+  setSelectedSize(size);
+  setCurrentPrice(price);
+};
+```
+
+## Styling Details
+
+### Image Effects
+
+<Tabs>
+  <Tab title="Default">
+    - Shadow: `shadow-sm`
+    - Transform: `scale-100`
+  </Tab>
+  <Tab title="Hover (Desktop)">
+    - Shadow: `shadow-xl`
+    - Transform: `scale-110`
+    - Duration: `700ms`
+  </Tab>
+</Tabs>
+
+### Button States
+
+**Quick Add Button (Top Right)**
+```tsx
+className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md 
+          text-white hover:bg-[#D4AF37] transition-all 
+          border border-white/30"
+```
+
+**Add to Cart Button (Bottom)**
+```tsx
+className="w-full bg-[#1a1a1a] text-white py-4 rounded-2xl 
+          hover:bg-[#D4AF37] transition-colors shadow-lg"
+```
+
+### Variant Buttons
+
+<ParamField path="Selected State" type="style">
+  - Background: `#D4AF37` (gold)
+  - Text: White
+  - Border: Gold
+</ParamField>
+
+<ParamField path="Unselected State" type="style">
+  - Background: White
+  - Text: `#1a1a1a`
+  - Border: Gray
+  - Hover: Gold border
+</ParamField>
+
+## Responsive Behavior
+
+<CardGroup cols={2}>
+  <Card title="Mobile View">
+    - Bottom button always visible
+    - Full-width variant buttons
+    - Stacked product info
+  </Card>
+  <Card title="Desktop View">
+    - Button reveals on hover
+    - Image zoom effect
+    - Wider variant button layout
+  </Card>
+</CardGroup>
+
+## Animations
+
+The card uses AOS for entrance animations:
+
+```tsx
+data-aos="fade-up" 
+data-aos-delay={delay}
+```
+
+This creates a staggered fade-up effect when multiple cards are displayed in a grid.
+
+## Example with Full Context
+
+```tsx
+import { ProductCard } from './components/ProductCard';
+import { useCart } from './context/CartContext';
+
+const exampleProduct = {
+  id: '1',
+  name: 'Cama Luxury Cloud',
+  category: 'Camas Premium',
+  price: 'S/ 299',
+  image: 'https://example.com/bed.jpg',
+  variants: [
+    { size: 'S', price: 'S/ 249' },
+    { size: 'M', price: 'S/ 299' },
+    { size: 'L', price: 'S/ 349' }
+  ]
+};
+
+function ProductShowcase() {
+  return (
+    <div className="max-w-sm">
+      <ProductCard product={exampleProduct} delay={100} />
+    </div>
+  );
+}
+```
+
+## Dependencies
+
+- `react` - Hooks for state management
+- `@fortawesome/react-fontawesome` - Icon components
+- `@fortawesome/free-solid-svg-icons` - Cart and plus icons
+- `../context/CartContext` - Cart state management
+- `../data/products` - Product type definition
+- AOS library - Scroll animations

@@ -1,0 +1,245 @@
+---
+title: "Cart Types"
+description: "TypeScript interfaces for shopping cart functionality"
+---
+
+## CartItem
+
+Extends the `Product` interface with cart-specific properties for quantity tracking and variant selection.
+
+### Type Definition
+
+```typescript
+interface CartItem extends Product {
+  quantity: number;
+  selectedSize?: string;
+}
+```
+
+### Fields
+
+<ResponseField name="quantity" type="number" required>
+  Number of units of this product in the cart. Always >= 1 for items in the cart.
+</ResponseField>
+
+<ResponseField name="selectedSize" type="string">
+  The selected size variant for this cart item. Used to distinguish between different variants of the same product.
+</ResponseField>
+
+### Inherited Fields
+
+Inherits all fields from the `Product` interface:
+
+<ResponseField name="id" type="number" required>
+  Unique identifier for the product
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Display name of the product
+</ResponseField>
+
+<ResponseField name="price" type="string" required>
+  Price with currency symbol (may be variant-specific price)
+</ResponseField>
+
+<ResponseField name="category" type="string" required>
+  Product category
+</ResponseField>
+
+<ResponseField name="image" type="string" required>
+  URL to the product image
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Product description
+</ResponseField>
+
+<ResponseField name="variants" type="ProductVariant[]">
+  Available size/price variants
+</ResponseField>
+
+### Usage Example
+
+```typescript
+const cartItem: CartItem = {
+  id: 1,
+  name: "Sofa Royal Velvet",
+  price: "S/ 1,099",  // Variant-specific price
+  category: "Sofás",
+  image: "https://images.unsplash.com/photo-1541599540903-216a46ca1df0",
+  description: "Terciopelo italiano de alta resistencia con base de madera sólida.",
+  variants: [
+    { size: "S", price: "S/ 899" },
+    { size: "M", price: "S/ 1,099" },
+    { size: "L", price: "S/ 1,299" }
+  ],
+  quantity: 2,
+  selectedSize: "M"
+};
+```
+
+### Uniqueness in Cart
+
+Cart items are considered unique by the combination of `id` and `selectedSize`. This allows the same product with different sizes to exist as separate cart entries:
+
+```typescript
+// These would be two separate cart items:
+const item1: CartItem = { 
+  id: 1, 
+  selectedSize: "M", 
+  quantity: 2,
+  // ...other Product fields
+};
+
+const item2: CartItem = { 
+  id: 1, 
+  selectedSize: "L", 
+  quantity: 1,
+  // ...other Product fields
+};
+```
+
+---
+
+## CartContextType
+
+The complete type definition for the cart context, including all cart state and operations.
+
+### Type Definition
+
+```typescript
+interface CartContextType {
+  cartItems: CartItem[];
+  addToCart: (product: Product, size?: string, price?: string) => void;
+  removeFromCart: (productId: number, size?: string) => void;
+  updateQuantity: (productId: number, quantity: number, size?: string) => void;
+  clearCart: () => void;
+  cartCount: number;
+  cartTotal: number;
+  isCartOpen: boolean;
+  setIsCartOpen: (isOpen: boolean) => void;
+}
+```
+
+### Fields
+
+#### State
+
+<ResponseField name="cartItems" type="CartItem[]">
+  Array of all items currently in the shopping cart
+</ResponseField>
+
+<ResponseField name="cartCount" type="number">
+  Computed value: total number of items in cart (sum of all quantities)
+  
+  ```typescript
+  cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0)
+  ```
+</ResponseField>
+
+<ResponseField name="cartTotal" type="number">
+  Computed value: total price of all items (numeric, without currency symbol)
+  
+  ```typescript
+  cartTotal = cartItems.reduce((acc, item) => {
+    const priceNum = parseInt(item.price.replace(/[^0-9]/g, ''));
+    return acc + (priceNum * item.quantity);
+  }, 0)
+  ```
+</ResponseField>
+
+<ResponseField name="isCartOpen" type="boolean">
+  Whether the cart sidebar is currently visible
+</ResponseField>
+
+#### Actions
+
+<ResponseField name="addToCart" type="(product: Product, size?: string, price?: string) => void">
+  Add a product to the cart or increment quantity if it already exists.
+  
+  **Parameters:**
+  - `product`: Product object to add
+  - `size`: Optional size variant
+  - `price`: Optional custom price (overrides product.price)
+  
+  **Behavior:**
+  - Opens the cart sidebar automatically
+  - Increments quantity if product with same ID and size exists
+  - Creates new cart entry with quantity = 1 if not exists
+</ResponseField>
+
+<ResponseField name="removeFromCart" type="(productId: number, size?: string) => void">
+  Remove a product from the cart completely.
+  
+  **Parameters:**
+  - `productId`: ID of product to remove
+  - `size`: Optional size to match (required if product has selectedSize)
+</ResponseField>
+
+<ResponseField name="updateQuantity" type="(productId: number, quantity: number, size?: string) => void">
+  Update the quantity of a cart item.
+  
+  **Parameters:**
+  - `productId`: ID of product to update
+  - `quantity`: New quantity (removes item if less than or equal to 0)
+  - `size`: Optional size to match (required if product has selectedSize)
+</ResponseField>
+
+<ResponseField name="clearCart" type="() => void">
+  Remove all items from the cart
+</ResponseField>
+
+<ResponseField name="setIsCartOpen" type="(isOpen: boolean) => void">
+  Open or close the cart sidebar
+</ResponseField>
+
+### Usage Example
+
+```typescript
+import { useCart } from './context/CartContext';
+import type { CartContextType } from './context/CartContext';
+
+function ShoppingCart() {
+  const {
+    cartItems,
+    cartCount,
+    cartTotal,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    isCartOpen,
+    setIsCartOpen
+  }: CartContextType = useCart();
+  
+  return (
+    <div>
+      <h2>Cart ({cartCount} items)</h2>
+      <p>Total: S/ {cartTotal.toLocaleString()}</p>
+      
+      {cartItems.map(item => (
+        <div key={`${item.id}-${item.selectedSize}`}>
+          <span>{item.name} {item.selectedSize && `(${item.selectedSize})`}</span>
+          <input
+            type="number"
+            value={item.quantity}
+            onChange={(e) => updateQuantity(item.id, parseInt(e.target.value), item.selectedSize)}
+          />
+          <button onClick={() => removeFromCart(item.id, item.selectedSize)}>
+            Remove
+          </button>
+        </div>
+      ))}
+      
+      <button onClick={clearCart}>Clear Cart</button>
+      <button onClick={() => setIsCartOpen(false)}>Close</button>
+    </div>
+  );
+}
+```
+
+### Notes
+
+- The context is created with `createContext<CartContextType | undefined>(undefined)`
+- The `useCart` hook ensures the context is not undefined by throwing an error if used outside a provider
+- All cart data is persisted to `localStorage` under the key `'jasper_cart'`
+- The cart state is initialized from localStorage on mount if available

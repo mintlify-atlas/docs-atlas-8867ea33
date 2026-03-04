@@ -1,0 +1,282 @@
+---
+title: Welcome to Jasper Pet Shop documentation
+description: Build and customize a luxury pet furniture e-commerce platform
+mode: custom
+---
+
+<div className="relative min-h-[60vh] flex items-center overflow-hidden dark:bg-[#0f1117] bg-white">
+  {/* Background gradient accent */}
+  <div className="absolute inset-0 dark:bg-gradient-to-br dark:from-[#f1d262]/10 dark:via-transparent dark:to-transparent bg-gradient-to-br from-[#f1d262]/20 via-transparent to-transparent" />
+  
+  <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
+    <div className="max-w-3xl">
+      {/* Badge */}
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full dark:bg-[#1a1d27] bg-gray-100 dark:border-[#27272a] border border-gray-200 mb-8">
+        <span className="text-xs font-semibold uppercase tracking-wider text-[#f1d262]">React + TypeScript + Vite</span>
+      </div>
+      
+      {/* Heading */}
+      <h1 className="text-5xl sm:text-6xl font-bold dark:text-gray-100 text-gray-900 mb-6 leading-tight">
+        Luxury pet furniture<br />
+        <span className="text-[#f1d262]">e-commerce platform</span>
+      </h1>
+      
+      {/* Subtitle */}
+      <p className="text-lg sm:text-xl dark:text-gray-400 text-gray-600 mb-10 leading-relaxed max-w-2xl">
+        Build a modern shopping experience for pet furniture with product catalogs, shopping cart management, and responsive design — all powered by React and TailwindCSS.
+      </p>
+      
+      {/* CTA Buttons */}
+      <div className="flex flex-wrap gap-4">
+        <a 
+          href="/quickstart" 
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#f1d262] text-[#2e2e2e] font-semibold hover:bg-[#e6c75b] transition-colors no-underline"
+        >
+          Get started
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a 
+          href="/features/product-catalog" 
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full dark:bg-white/10 bg-gray-100 dark:text-gray-100 text-gray-900 dark:border-[#27272a] border border-gray-200 font-semibold dark:hover:bg-white/15 hover:bg-gray-200 dark:hover:border-[#f1d262] hover:border-[#f1d262] transition-all no-underline"
+        >
+          Explore features
+        </a>
+      </div>
+      
+      {/* Stats */}
+      <div className="flex flex-wrap gap-8 mt-12 pt-8 dark:border-t dark:border-[#27272a] border-t border-gray-200">
+        <div>
+          <div className="text-3xl font-bold text-[#f1d262]">8+</div>
+          <div className="text-sm dark:text-gray-400 text-gray-600">Products</div>
+        </div>
+        <div>
+          <div className="text-3xl font-bold text-[#f1d262]">6+</div>
+          <div className="text-sm dark:text-gray-400 text-gray-600">Components</div>
+        </div>
+        <div>
+          <div className="text-3xl font-bold text-[#f1d262]">100%</div>
+          <div className="text-sm dark:text-gray-400 text-gray-600">TypeScript</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* Quick Start Section */}
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold dark:text-white text-gray-900 mb-4">Quick start</h2>
+  <p className="text-base dark:text-gray-400 text-gray-600 mb-8">Get your development environment up and running in minutes</p>
+  
+  <Steps>
+    <Step title="Clone the repository">
+      Clone the Jasper Pet Shop repository to your local machine:
+      
+      ```bash
+      git clone https://github.com/SaulSneider7/jasperpetshop.git
+      cd jasperpetshop
+      ```
+    </Step>
+    
+    <Step title="Install dependencies">
+      Install all required packages using npm:
+      
+      ```bash
+      npm install
+      ```
+      
+      This will install React, Vite, TailwindCSS, React Router, and all other dependencies.
+    </Step>
+    
+    <Step title="Start the development server">
+      Launch the Vite development server:
+      
+      ```bash
+      npm run dev
+      ```
+      
+      Your app will be available at `http://localhost:5173`
+    </Step>
+    
+    <Step title="Build for production">
+      When you're ready to deploy, create an optimized production build:
+      
+      ```bash
+      npm run build
+      ```
+      
+      The compiled assets will be in the `dist/` directory.
+    </Step>
+  </Steps>
+</div>
+
+{/* Features Grid */}
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold dark:text-white text-gray-900 mb-4">Core features</h2>
+  <p className="text-base dark:text-gray-400 text-gray-600 mb-8">Everything you need to build a modern e-commerce experience</p>
+  
+  <CardGroup cols={2}>
+    <Card title="Product catalog" icon="grid-2" href="/features/product-catalog">
+      Dynamic product listings with variants, pricing, and rich imagery from the products data array
+    </Card>
+    <Card title="Shopping cart" icon="cart-shopping" href="/features/shopping-cart">
+      Context-based cart management with localStorage persistence and real-time updates
+    </Card>
+    <Card title="Routing" icon="route" href="/features/routing">
+      Client-side navigation with React Router for seamless page transitions
+    </Card>
+    <Card title="Animations" icon="wand-magic-sparkles" href="/features/animations">
+      Smooth scroll animations powered by AOS and Framer Motion
+    </Card>
+  </CardGroup>
+</div>
+
+{/* Component Library */}
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold dark:text-white text-gray-900 mb-4">Component library</h2>
+  <p className="text-base dark:text-gray-400 text-gray-600 mb-8">Explore the building blocks of Jasper Pet Shop</p>
+  
+  <CardGroup cols={3}>
+    <Card title="Navbar" icon="bars" href="/components/navbar">
+      Responsive navigation with cart indicator
+    </Card>
+    <Card title="Product card" icon="rectangle-list" href="/components/product-card">
+      Reusable product display component
+    </Card>
+    <Card title="Cart drawer" icon="sidebar" href="/components/cart-drawer">
+      Sliding cart panel with item management
+    </Card>
+    <Card title="Hero" icon="image" href="/components/hero">
+      Full-width hero section with CTAs
+    </Card>
+    <Card title="Features" icon="star" href="/components/features">
+      Feature highlight grid
+    </Card>
+    <Card title="Footer" icon="rectangle-vertical" href="/components/footer">
+      Site footer with links and branding
+    </Card>
+  </CardGroup>
+</div>
+
+{/* API Reference */}
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold dark:text-white text-gray-900 mb-4">Developer reference</h2>
+  <p className="text-base dark:text-gray-400 text-gray-600 mb-8">Deep dive into the APIs and type definitions</p>
+  
+  <CardGroup cols={2}>
+    <Card title="Cart context" icon="code" href="/api/cart-context">
+      CartProvider, useCart hook, and cart operations
+    </Card>
+    <Card title="Product types" icon="brackets-curly" href="/api/product-types">
+      TypeScript interfaces for products and variants
+    </Card>
+  </CardGroup>
+</div>
+
+{/* Resources */}
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-3xl font-semibold dark:text-white text-gray-900 mb-4">Resources</h2>
+  <p className="text-base dark:text-gray-400 text-gray-600 mb-8">Learn more about the technologies powering Jasper Pet Shop</p>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <a 
+      href="https://react.dev" 
+      target="_blank"
+      className="group block rounded-2xl dark:bg-[#1a1d27] bg-gray-50 dark:border-[#27272a] border border-gray-200 dark:hover:border-[#f1d262] hover:border-[#f1d262] p-6 transition-all no-underline"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-xl dark:bg-[#242838] bg-white flex items-center justify-center text-2xl">⚛️</div>
+        <div className="flex-1">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-1">React documentation</h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-2">Learn React fundamentals and advanced patterns</p>
+          <div className="flex items-center gap-1 text-sm text-[#f1d262] dark:group-hover:text-[#e6c75b] group-hover:text-[#d4a54a]">
+            Visit docs
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </a>
+    
+    <a 
+      href="https://tailwindcss.com/docs" 
+      target="_blank"
+      className="group block rounded-2xl dark:bg-[#1a1d27] bg-gray-50 dark:border-[#27272a] border border-gray-200 dark:hover:border-[#f1d262] hover:border-[#f1d262] p-6 transition-all no-underline"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-xl dark:bg-[#242838] bg-white flex items-center justify-center text-2xl">🎨</div>
+        <div className="flex-1">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-1">TailwindCSS documentation</h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-2">Master utility-first CSS styling</p>
+          <div className="flex items-center gap-1 text-sm text-[#f1d262] dark:group-hover:text-[#e6c75b] group-hover:text-[#d4a54a]">
+            Visit docs
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </a>
+    
+    <a 
+      href="https://vite.dev" 
+      target="_blank"
+      className="group block rounded-2xl dark:bg-[#1a1d27] bg-gray-50 dark:border-[#27272a] border border-gray-200 dark:hover:border-[#f1d262] hover:border-[#f1d262] p-6 transition-all no-underline"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-xl dark:bg-[#242838] bg-white flex items-center justify-center text-2xl">⚡</div>
+        <div className="flex-1">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-1">Vite documentation</h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-2">Fast build tool and dev server</p>
+          <div className="flex items-center gap-1 text-sm text-[#f1d262] dark:group-hover:text-[#e6c75b] group-hover:text-[#d4a54a]">
+            Visit docs
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </a>
+    
+    <a 
+      href="https://reactrouter.com" 
+      target="_blank"
+      className="group block rounded-2xl dark:bg-[#1a1d27] bg-gray-50 dark:border-[#27272a] border border-gray-200 dark:hover:border-[#f1d262] hover:border-[#f1d262] p-6 transition-all no-underline"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-xl dark:bg-[#242838] bg-white flex items-center justify-center text-2xl">🗺️</div>
+        <div className="flex-1">
+          <h3 className="text-base font-semibold dark:text-white text-gray-900 mb-1">React Router documentation</h3>
+          <p className="text-sm dark:text-gray-400 text-gray-600 mb-2">Client-side routing for React apps</p>
+          <div className="flex items-center gap-1 text-sm text-[#f1d262] dark:group-hover:text-[#e6c75b] group-hover:text-[#d4a54a]">
+            Visit docs
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+{/* Closing CTA */}
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="rounded-3xl dark:bg-gradient-to-br dark:from-[#f1d262]/10 dark:to-transparent bg-gradient-to-br from-[#f1d262]/20 to-transparent dark:border-[#27272a] border border-gray-200 p-12 text-center">
+    <h2 className="text-3xl font-bold dark:text-white text-gray-900 mb-4">Ready to build?</h2>
+    <p className="text-lg dark:text-gray-400 text-gray-600 mb-8 max-w-2xl mx-auto">
+      Start building your luxury pet furniture e-commerce platform today
+    </p>
+    <a 
+      href="/quickstart" 
+      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#f1d262] text-[#2e2e2e] font-semibold hover:bg-[#e6c75b] transition-colors no-underline"
+    >
+      Get started now
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  </div>
+</div>

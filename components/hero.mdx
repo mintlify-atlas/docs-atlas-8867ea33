@@ -1,0 +1,245 @@
+---
+title: 'Hero'
+description: 'Eye-catching hero section with headline, CTA, social proof, and featured image'
+---
+
+## Overview
+
+The `Hero` component is the landing section of the website featuring a bold headline, call-to-action button, social proof elements, and a featured image. It uses AOS (Animate On Scroll) for entrance animations.
+
+## Import
+
+```tsx
+import { Hero } from '../components/Hero';
+```
+
+## Usage
+
+```tsx
+import { Hero } from './components/Hero';
+
+function HomePage() {
+  return (
+    <>
+      <Hero />
+      {/* Other sections */}
+    </>
+  );
+}
+```
+
+## Layout
+
+The Hero uses a 12-column grid layout:
+
+<CardGroup cols={2}>
+  <Card title="Content Area" icon="align-left">
+    Left side (7 columns) - Headline, description, CTA, and social proof
+  </Card>
+  <Card title="Image Area" icon="image">
+    Right side (5 columns) - Featured product image with decorative styling
+  </Card>
+</CardGroup>
+
+## Key Elements
+
+### Badge
+
+```tsx
+<div className="inline-flex items-center gap-2 px-4 py-2 rounded-full">
+  <FontAwesomeIcon icon={faStar} />
+  <span>Excelencia en Descanso Animal</span>
+</div>
+```
+
+<ParamField path="Badge" type="component">
+  Small pill-shaped badge with star icon highlighting the value proposition
+</ParamField>
+
+### Headline
+
+<ParamField path="Headline" type="text">
+  Large serif font headline with emphasis on "Real" in gold italic:
+  
+  "Confort **Real** para tu Mascota."
+</ParamField>
+
+### Description
+
+<ParamField path="Description" type="text">
+  Supporting text explaining the product value:
+  
+  "Elevamos el bienestar de tus compañeros con mobiliario de lujo diseñado para integrarse perfectamente en tu hogar moderno."
+</ParamField>
+
+### Social Proof
+
+The component includes a social proof section with:
+
+<Steps>
+  <Step title="Avatar Stack">
+    Three overlapping circular avatars from pravatar.cc
+  </Step>
+  <Step title="Customer Count">
+    "+2k Clientes Felices" text
+  </Step>
+  <Step title="Star Rating">
+    Five gold stars displayed using FontAwesome icons
+  </Step>
+</Steps>
+
+```tsx
+<div className="flex -space-x-2 items-center">
+  {[1, 2, 3].map((i) => (
+    <img
+      key={i}
+      src={`https://i.pravatar.cc/100?img=${i + 10}`}
+      className="w-10 h-10 rounded-full border-2 border-white"
+    />
+  ))}
+  <div className="pl-4">
+    <p>+2k Clientes Felices</p>
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <FontAwesomeIcon key={s} icon={faStar} />
+      ))}
+    </div>
+  </div>
+</div>
+```
+
+## Call-to-Action Button
+
+<ParamField path="CTA Button" type="component">
+  Primary action button with hover effects:
+  - Dark background with gold hover state
+  - Chevron right icon that slides on hover
+  - Shadow effects for depth
+</ParamField>
+
+```tsx
+<button className="bg-[#1a1a1a] hover:bg-[#D4AF37] transition-all group">
+  <span>Explorar Catálogo</span>
+  <FontAwesomeIcon 
+    icon={faChevronRight} 
+    className="group-hover:translate-x-1 transition-transform" 
+  />
+</button>
+```
+
+## Featured Image
+
+The right side displays a featured image with decorative styling:
+
+<ParamField path="Image Container" type="component">
+  - Rounded corners (`rounded-[40px]`)
+  - White border (8px)
+  - Large shadow for depth
+  - 4:5 aspect ratio
+  - Image source: `./logo_jasperpetshop.jpeg`
+</ParamField>
+
+## Background Accents
+
+```tsx
+<div className="absolute top-0 right-0 w-1/2 h-full 
+              bg-[#D4AF37]/5 -skew-x-12 translate-x-1/4">
+</div>
+```
+
+A subtle skewed background element adds visual interest without overwhelming the content.
+
+## Animations
+
+The Hero uses AOS (Animate On Scroll) library:
+
+<Tabs>
+  <Tab title="Left Content">
+    ```tsx
+    data-aos="fade-right"
+    ```
+    Content slides in from the left
+  </Tab>
+  <Tab title="Right Image">
+    ```tsx
+    data-aos="fade-left" 
+    data-aos-delay="200"
+    ```
+    Image slides in from the right with a 200ms delay
+  </Tab>
+</Tabs>
+
+## Styling
+
+### Typography
+
+- **Headline**: `text-5xl md:text-6xl lg:text-7xl` - Responsive sizing
+- **Font**: Serif font family for elegance
+- **Tracking**: Tight letter spacing (`tracking-tighter`)
+- **Line Height**: `1.1` for compact multi-line headlines
+
+### Colors
+
+- **Background**: `#fcfaf7` - Off-white/cream
+- **Primary Gold**: `#D4AF37`
+- **Text**: `#1a1a1a` - Near black
+- **Secondary Text**: `gray-500`
+
+### Spacing
+
+- **Section Padding**: `pt-32 pb-20` - Accounts for fixed navbar
+- **Min Height**: `70vh` - Ensures substantial presence
+
+## Responsive Behavior
+
+<CardGroup cols={3}>
+  <Card title="Mobile" icon="mobile">
+    - Stacked layout
+    - Smaller headline (5xl)
+    - Full-width CTA
+  </Card>
+  <Card title="Tablet" icon="tablet">
+    - Medium headline (6xl)
+    - Side-by-side on larger tablets
+  </Card>
+  <Card title="Desktop" icon="desktop">
+    - 12-column grid
+    - Largest headline (7xl)
+    - Optimal spacing
+  </Card>
+</CardGroup>
+
+## Complete Component
+
+```tsx
+export const Hero = () => {
+  return (
+    <section id="inicio" className="relative min-h-[70vh] 
+                                    flex items-center pt-32 pb-20 
+                                    overflow-hidden bg-[#fcfaf7]">
+      {/* Background Accents */}
+      <div className="absolute top-0 right-0 w-1/2 h-full 
+                      bg-[#D4AF37]/5 -skew-x-12 translate-x-1/4"></div>
+
+      <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-12 gap-12">
+        {/* Content Column */}
+        <div className="lg:col-span-7" data-aos="fade-right">
+          {/* Badge, Headline, Description, CTA, Social Proof */}
+        </div>
+        
+        {/* Image Column */}
+        <div className="lg:col-span-5" data-aos="fade-left" 
+             data-aos-delay="200">
+          {/* Featured Image */}
+        </div>
+      </div>
+    </section>
+  );
+};
+```
+
+## Dependencies
+
+- `@fortawesome/react-fontawesome` - Icons
+- `@fortawesome/free-solid-svg-icons` - Star and Chevron icons
+- AOS library (initialized elsewhere) - Scroll animations

@@ -1,0 +1,407 @@
+---
+title: 'Project Structure'
+description: 'Understanding the codebase organization and file structure'
+---
+
+## Overview
+
+Jasper Pet Shop follows a clean, modular architecture that separates concerns and makes the codebase easy to navigate and maintain.
+
+## Directory Structure
+
+```
+jasperpetshop/
+├── public/
+│   └── logo_jasperpetshop.jpeg
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── About.tsx
+│   │   ├── CartDrawer.tsx
+│   │   ├── CTA.tsx
+│   │   ├── Features.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Hero.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── ProductCard.tsx
+│   │   ├── Products.tsx
+│   │   └── SocialSection.tsx
+│   ├── context/             # React Context providers
+│   │   └── CartContext.tsx
+│   ├── data/                # Static data and types
+│   │   └── products.ts
+│   ├── pages/               # Page components
+│   │   ├── Catalog.tsx
+│   │   └── Home.tsx
+│   ├── App.tsx              # Main application component
+│   ├── main.tsx             # Application entry point
+│   └── index.css            # Global styles
+├── package.json
+├── tsconfig.json
+├── tsconfig.app.json
+├── vite.config.ts
+└── README.md
+```
+
+## Core Directories
+
+### `/src/components`
+
+Reusable UI components that can be used across multiple pages.
+
+<Tabs>
+  <Tab title="Layout Components">
+    **Navbar.tsx** - Main navigation bar with cart icon
+    
+    **Footer.tsx** - Site footer with links and social media
+    
+    **CartDrawer.tsx** - Slide-out shopping cart panel
+  </Tab>
+  
+  <Tab title="Section Components">
+    **Hero.tsx** - Landing page hero section
+    
+    **Features.tsx** - Feature showcase grid
+    
+    **About.tsx** - About section
+    
+    **Products.tsx** - Featured products section
+    
+    **SocialSection.tsx** - Social media feed
+    
+    **CTA.tsx** - Call-to-action section
+  </Tab>
+  
+  <Tab title="Product Components">
+    **ProductCard.tsx** - Individual product display card with variants, hover effects, and add-to-cart
+  </Tab>
+</Tabs>
+
+### `/src/pages`
+
+Top-level page components corresponding to routes:
+
+```typescript src/pages/Home.tsx
+import { Hero } from '../components/Hero';
+import { Features } from '../components/Features';
+import { About } from '../components/About';
+import { Products } from '../components/Products';
+import { SocialSection } from '../components/SocialSection';
+import { CTA } from '../components/CTA';
+
+export const Home = () => {
+    return (
+        <>
+            <Hero />
+            <Features />
+            <About />
+            <Products />
+            <SocialSection />
+            <CTA />
+        </>
+    );
+};
+```
+
+<Note>
+  Pages are composition components that assemble multiple smaller components into complete views.
+</Note>
+
+### `/src/context`
+
+React Context providers for global state management:
+
+```typescript src/context/CartContext.tsx
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    
+    // Cart operations: addToCart, removeFromCart, updateQuantity, etc.
+    
+    return (
+        <CartContext.Provider value={/* cart state and methods */}>
+            {children}
+        </CartContext.Provider>
+    );
+};
+
+export const useCart = () => {
+    const context = useContext(CartContext);
+    if (!context) throw new Error('useCart must be used within a CartProvider');
+    return context;
+};
+```
+
+<Tip>
+  Always export a custom hook (`useCart`) alongside your context to provide better error handling and type safety.
+</Tip>
+
+### `/src/data`
+
+Static data, types, and configurations:
+
+```typescript src/data/products.ts
+export interface Product {
+    id: number;
+    name: string;
+    price: string;
+    category: string;
+    image: string;
+    description: string;
+    variants?: ProductVariant[];
+}
+
+export const products: Product[] = [
+    // Product data
+];
+```
+
+## Entry Points
+
+### main.tsx
+
+The application entry point that renders the root component:
+
+```typescript src/main.tsx
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+import 'aos/dist/aos.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+```
+
+### App.tsx
+
+The root component that sets up routing, providers, and layout:
+
+```typescript src/App.tsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+import { Home } from './pages/Home';
+import { Catalog } from './pages/Catalog';
+import { CartDrawer } from './components/CartDrawer';
+
+export default function App() {
+    // AOS initialization
+    React.useEffect(() => {
+        AOS.init({
+            duration: 1000,
+            once: true,
+            easing: 'ease-out-cubic',
+            disableMutationObserver: true,
+        });
+    }, []);
+
+    return (
+        <CartProvider>
+            <Router>
+                <ScrollToTop />
+                <div className="overflow-hidden min-h-screen bg-[#fcfaf7]">
+                    <Navbar />
+                    <CartDrawer />
+                    <main>
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/catalogo" element={<Catalog />} />
+                        </Routes>
+                    </main>
+                    <Footer />
+                </div>
+            </Router>
+        </CartProvider>
+    );
+}
+```
+
+## Configuration Files
+
+### package.json
+
+Defines dependencies, scripts, and project metadata:
+
+```json package.json
+{
+  "name": "jasperpetshop",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.1",
+    "framer-motion": "^12.34.4",
+    "aos": "^2.3.4",
+    "tailwindcss": "^4.2.1"
+  }
+}
+```
+
+### vite.config.ts
+
+Vite build configuration:
+
+```typescript vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+})
+```
+
+### tsconfig.app.json
+
+TypeScript compiler configuration:
+
+```json tsconfig.app.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+## Component Patterns
+
+### Presentation Components
+
+Components that focus on how things look:
+
+```typescript
+interface FeatureProps {
+    icon: IconDefinition;
+    title: string;
+    description: string;
+}
+
+export const Feature: React.FC<FeatureProps> = ({ icon, title, description }) => {
+    return (
+        <div className="group">
+            <FontAwesomeIcon icon={icon} />
+            <h3>{title}</h3>
+            <p>{description}</p>
+        </div>
+    );
+};
+```
+
+### Container Components
+
+Components that manage state and logic:
+
+```typescript
+export const Catalog = () => {
+    const [selectedCategory, setSelectedCategory] = useState('Todos');
+    const filteredProducts = /* filtering logic */;
+    
+    return (
+        <div>
+            <CategoryFilter 
+                selected={selectedCategory}
+                onChange={setSelectedCategory}
+            />
+            <ProductGrid products={filteredProducts} />
+        </div>
+    );
+};
+```
+
+## Import Organization
+
+Organize imports in this order:
+
+```typescript
+// 1. External libraries
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+// 2. Internal types
+import type { Product, ProductVariant } from '../data/products';
+
+// 3. Context and hooks
+import { useCart } from '../context/CartContext';
+
+// 4. Components
+import { ProductCard } from '../components/ProductCard';
+
+// 5. Data and utilities
+import { products } from '../data/products';
+```
+
+## File Naming Conventions
+
+<CardGroup cols={2}>
+  <Card title="Components" icon="cube">
+    PascalCase: `ProductCard.tsx`, `Hero.tsx`
+  </Card>
+  
+  <Card title="Pages" icon="file">
+    PascalCase: `Home.tsx`, `Catalog.tsx`
+  </Card>
+  
+  <Card title="Utilities" icon="wrench">
+    camelCase: `formatPrice.ts`, `utils.ts`
+  </Card>
+  
+  <Card title="Data" icon="database">
+    camelCase: `products.ts`, `categories.ts`
+  </Card>
+</CardGroup>
+
+## Adding New Features
+
+<Steps>
+  <Step title="Create data types">
+    Define interfaces in `/src/data` if needed
+  </Step>
+  
+  <Step title="Build components">
+    Create reusable components in `/src/components`
+  </Step>
+  
+  <Step title="Add context if needed">
+    Create context provider in `/src/context` for shared state
+  </Step>
+  
+  <Step title="Create or update pages">
+    Compose components into pages in `/src/pages`
+  </Step>
+  
+  <Step title="Add routes">
+    Update routing in `App.tsx`
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Styling Guide" icon="palette" href="/development/styling">
+    Learn about TailwindCSS organization
+  </Card>
+  <Card title="State Management" icon="database" href="/development/state-management">
+    Deep dive into Context API usage
+  </Card>
+</CardGroup>

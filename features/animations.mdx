@@ -1,0 +1,426 @@
+---
+title: 'Animations'
+description: 'Animation systems using Framer Motion and AOS (Animate on Scroll)'
+---
+
+## Overview
+
+Jasper Pet Shop uses two powerful animation libraries to create engaging user experiences:
+
+- **Framer Motion** - Advanced animations for interactive elements
+- **AOS (Animate on Scroll)** - Scroll-triggered animations
+
+## AOS Initialization
+
+AOS is initialized in the main App component:
+
+```typescript src/App.tsx
+import React from 'react';
+import AOS from 'aos';
+
+export default function App() {
+    React.useEffect(() => {
+        AOS.init({
+            duration: 1000,           // Animation duration in ms
+            once: true,               // Animation happens only once
+            easing: 'ease-out-cubic', // Smooth easing function
+            disableMutationObserver: true,
+        });
+    }, []);
+
+    return (
+        // App content
+    );
+}
+```
+
+<Note>
+  The `once: true` option prevents animations from repeating on scroll, creating a cleaner experience.
+</Note>
+
+## AOS Animations
+
+### Fade Up Animation
+
+The most common animation pattern used throughout the site:
+
+```typescript src/components/Features.tsx
+<div 
+    className="group" 
+    data-aos="fade-up" 
+    data-aos-delay={index * 100}
+>
+    {/* Feature content */}
+</div>
+```
+
+### Available AOS Animations
+
+<Tabs>
+  <Tab title="Fade">
+    ```jsx
+    data-aos="fade-up"      // Fade in from bottom
+    data-aos="fade-down"    // Fade in from top
+    data-aos="fade-left"    // Fade in from right
+    data-aos="fade-right"   // Fade in from left
+    ```
+  </Tab>
+  
+  <Tab title="Zoom">
+    ```jsx
+    data-aos="zoom-in"      // Zoom in
+    data-aos="zoom-out"     // Zoom out
+    data-aos="zoom-in-up"   // Zoom in from bottom
+    data-aos="zoom-in-down" // Zoom in from top
+    ```
+  </Tab>
+  
+  <Tab title="Flip">
+    ```jsx
+    data-aos="flip-left"    // Flip from left
+    data-aos="flip-right"   // Flip from right
+    data-aos="flip-up"      // Flip from bottom
+    data-aos="flip-down"    // Flip from top
+    ```
+  </Tab>
+</Tabs>
+
+### Staggered Animations
+
+Create sequential animations using delays:
+
+```typescript src/components/Features.tsx
+const features = [/* feature data */];
+
+return (
+    <div className="grid md:grid-cols-4 gap-12">
+        {features.map((f, i) => (
+            <div 
+                key={i} 
+                data-aos="fade-up" 
+                data-aos-delay={i * 100}  // 0ms, 100ms, 200ms, 300ms
+            >
+                {/* Feature content */}
+            </div>
+        ))}
+    </div>
+);
+```
+
+<Tip>
+  Multiply the index by 100ms to create smooth staggered effects. Adjust the multiplier to speed up or slow down the stagger.
+</Tip>
+
+## Framer Motion Animations
+
+### Cart Drawer Animation
+
+The cart drawer slides in from the right with spring physics:
+
+```typescript src/components/CartDrawer.tsx
+import { motion, AnimatePresence } from 'framer-motion';
+
+export const CartDrawer = () => {
+    const { isCartOpen } = useCart();
+
+    return (
+        <AnimatePresence>
+            {isCartOpen && (
+                <>
+                    {/* Backdrop with fade */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+                    />
+
+                    {/* Drawer with slide + spring */}
+                    <motion.div
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ 
+                            type: 'spring', 
+                            damping: 25, 
+                            stiffness: 200 
+                        }}
+                        className="fixed top-0 right-0 h-full w-full max-w-md bg-white"
+                    >
+                        {/* Cart content */}
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+```
+
+<Note>
+  `AnimatePresence` is required for exit animations. It detects when components are removed from the React tree.
+</Note>
+
+### Layout Animations
+
+Animate layout changes when filtering products:
+
+```typescript src/pages/Catalog.tsx
+import { motion } from 'framer-motion';
+
+export const Catalog = () => {
+    const [selectedCategory, setSelectedCategory] = useState('Todos');
+    const filteredProducts = /* filter logic */;
+
+    return (
+        <motion.div 
+            layout  // Automatically animate layout changes
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-10"
+        >
+            {filteredProducts.map((product, i) => (
+                <ProductCard 
+                    key={product.id} 
+                    product={product} 
+                    delay={i * 50} 
+                />
+            ))}
+        </motion.div>
+    );
+};
+```
+
+<Tip>
+  The `layout` prop enables automatic FLIP animations when grid items are added, removed, or reordered.
+</Tip>
+
+### Hover Animations
+
+Create interactive hover effects with Framer Motion:
+
+```typescript
+import { motion } from 'framer-motion';
+
+function Button() {
+    return (
+        <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400 }}
+        >
+            Hover me
+        </motion.button>
+    );
+}
+```
+
+## CSS Transition Animations
+
+### Image Hover Effects
+
+Product images scale on hover using CSS transitions:
+
+```typescript src/components/ProductCard.tsx
+<div className="group relative aspect-[4/5] rounded-[40px] overflow-hidden">
+    <img
+        src={product.image}
+        alt={product.name}
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+    />
+</div>
+```
+
+### Button Hover States
+
+Add to cart button slides up on hover (desktop only):
+
+```typescript src/components/ProductCard.tsx
+<div className="absolute bottom-6 left-6 right-6 md:translate-y-24 md:group-hover:translate-y-0 transition-transform duration-500">
+    <button className="w-full bg-[#1a1a1a] text-white py-4 rounded-2xl hover:bg-[#D4AF37] transition-colors">
+        Añadir al Carrito
+    </button>
+</div>
+```
+
+<Warning>
+  The `md:` prefix ensures the slide effect only applies on medium screens and above. Mobile devices show the button by default.
+</Warning>
+
+### Icon Animations
+
+Feature icons rotate and change color on hover:
+
+```typescript src/components/Features.tsx
+<div className="w-14 h-14 rounded-2xl bg-[#fcfaf7] flex items-center justify-center group-hover:bg-[#D4AF37] transition-all duration-500 transform group-hover:-rotate-6">
+    <FontAwesomeIcon 
+        icon={icon} 
+        className="text-[#D4AF37] group-hover:text-white transition-colors text-2xl" 
+    />
+</div>
+```
+
+## Animation Utilities
+
+### Spring Configurations
+
+Common spring settings for different effects:
+
+<CodeGroup>
+
+```typescript Gentle Spring
+transition={{
+    type: 'spring',
+    damping: 25,
+    stiffness: 200
+}}
+```
+
+```typescript Bouncy Spring
+transition={{
+    type: 'spring',
+    damping: 10,
+    stiffness: 300
+}}
+```
+
+```typescript Smooth Spring
+transition={{
+    type: 'spring',
+    damping: 30,
+    stiffness: 150
+}}
+```
+
+</CodeGroup>
+
+### Custom Variants
+
+Define reusable animation variants:
+
+```typescript
+const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: {
+            duration: 0.6,
+            ease: 'easeOut'
+        }
+    }
+};
+
+<motion.div
+    initial="hidden"
+    animate="visible"
+    variants={fadeInUp}
+>
+    Content
+</motion.div>
+```
+
+### Stagger Children
+
+Animate child elements in sequence:
+
+```typescript
+const container = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1  // 100ms between each child
+        }
+    }
+};
+
+const item = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+};
+
+<motion.div variants={container} initial="hidden" animate="visible">
+    {items.map((item, i) => (
+        <motion.div key={i} variants={item}>
+            {item.content}
+        </motion.div>
+    ))}
+</motion.div>
+```
+
+## Performance Optimization
+
+<Steps>
+  <Step title="Use transform properties">
+    Animate `transform` (translate, scale, rotate) and `opacity` for 60fps animations. Avoid animating `width`, `height`, or `top/left`.
+    
+    ```css
+    /* Good - uses transform */
+    .element {
+      transform: translateY(20px);
+    }
+    
+    /* Bad - triggers layout */
+    .element {
+      top: 20px;
+    }
+    ```
+  </Step>
+  
+  <Step title="Reduce motion for accessibility">
+    Respect user preferences:
+    
+    ```typescript
+    const shouldReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    <motion.div
+        animate={shouldReduceMotion ? {} : { scale: 1.1 }}
+    >
+        Content
+    </motion.div>
+    ```
+  </Step>
+  
+  <Step title="Use will-change sparingly">
+    Hint to the browser for better performance:
+    
+    ```css
+    .animated-element {
+      will-change: transform;
+    }
+    ```
+  </Step>
+</Steps>
+
+## Animation Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Duration" icon="clock">
+    - UI feedback: 150-300ms
+    - Page transitions: 300-500ms
+    - Complex animations: 500-1000ms
+  </Card>
+  
+  <Card title="Easing" icon="wave-square">
+    - ease-out: Elements entering
+    - ease-in: Elements exiting
+    - ease-in-out: Elements moving
+  </Card>
+  
+  <Card title="Subtlety" icon="eye">
+    Animations should enhance, not distract. Keep movements small and purposeful.
+  </Card>
+  
+  <Card title="Consistency" icon="check">
+    Use consistent durations and easing throughout your app for a cohesive feel.
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Styling Guide" icon="palette" href="/development/styling">
+    Learn about TailwindCSS utilities
+  </Card>
+  <Card title="Project Structure" icon="folder-tree" href="/development/project-structure">
+    Understand component organization
+  </Card>
+</CardGroup>

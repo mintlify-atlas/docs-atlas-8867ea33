@@ -1,0 +1,194 @@
+---
+title: 'Footer'
+description: 'Comprehensive footer with brand info, navigation links, and social media connections'
+---
+
+## Overview
+
+The `Footer` component provides a rich footer section with brand information, navigation links, social media connections, and company details. It features a multi-column layout that's responsive and includes external links to social platforms.
+
+## Import
+
+```tsx
+import { Footer } from '../components/Footer';
+```
+
+## Usage
+
+```tsx
+import { Footer } from './components/Footer';
+
+function App() {
+  return (
+    <>
+      {/* Page content */}
+      <Footer />
+    </>
+  );
+}
+```
+
+## Layout Structure
+
+The footer is organized into a 12-column grid on large screens:
+
+<CardGroup cols={2}>
+  <Card title="Brand Section" icon="paw">
+    Left side (5 columns) - Logo, description, and social media icons
+  </Card>
+  <Card title="Links Section" icon="link">
+    Right side (7 columns) - Three columns of navigation links
+  </Card>
+</CardGroup>
+
+## Section Breakdown
+
+### Brand Area
+
+<ParamField path="Logo" type="component">
+  Brand logo with paw icon in gold background and JASPERPETSHOP text
+</ParamField>
+
+<ParamField path="Description" type="text">
+  "Redefiniendo el descanso animal con piezas de diseño atemporales y materiales de la más alta calidad."
+</ParamField>
+
+<ParamField path="Social Icons" type="component[]">
+  Instagram, Facebook, and WhatsApp icon links with hover effects
+</ParamField>
+
+### Social Media Links
+
+```tsx
+// Instagram
+https://www.instagram.com/invites/contact/?i=1vlgoav5whto1&utm_content=myftgi8
+
+// Facebook  
+https://www.facebook.com/share/1Ab4s8pTZ7/
+
+// WhatsApp
+https://wa.me/51903433063
+```
+
+## Navigation Columns
+
+<Tabs>
+  <Tab title="Compañía">
+    - Nosotros
+    - Sostenibilidad
+    - Prensa
+  </Tab>
+  <Tab title="Soporte">
+    - Envíos
+    - Devoluciones
+    - Contacto WhatsApp
+  </Tab>
+  <Tab title="Ubicación">
+    - Tienda Virtual info
+    - Lima, Perú
+    - Designer credit
+  </Tab>
+</Tabs>
+
+## Styling
+
+### Colors
+
+- **Primary Gold**: `#D4AF37`
+- **Background**: White
+- **Text Primary**: Black/`#1a1a1a`
+- **Text Secondary**: Gray variations (`gray-400`, `gray-500`)
+- **WhatsApp Green**: `#25D366`
+
+### Social Icons Hover Effects
+
+```tsx
+// Instagram & Facebook
+className="hover:bg-[#D4AF37] hover:text-white"
+
+// WhatsApp
+className="hover:bg-[#25D366] hover:text-white"
+```
+
+## Bottom Bar
+
+The footer includes a bottom section with:
+
+<CardGroup cols={2}>
+  <Card title="Copyright" icon="copyright">
+    "© 2024 JASPERPET. Todos los derechos reservados."
+  </Card>
+  <Card title="Legal Links" icon="scale-balanced">
+    Privacy and Terms links
+  </Card>
+</CardGroup>
+
+## Component Code
+
+```tsx
+export const Footer = () => {
+  return (
+    <footer id="contacto" className="bg-white pt-32 pb-12 border-t">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid lg:grid-cols-12 gap-16 mb-24">
+          {/* Brand Section */}
+          <div className="lg:col-span-5">
+            {/* Logo */}
+            {/* Description */}
+            {/* Social Icons */}
+          </div>
+          
+          {/* Navigation Links */}
+          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3">
+            {/* Compañía, Soporte, Ubicación */}
+          </div>
+        </div>
+        
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:row justify-between">
+          {/* Copyright & Legal Links */}
+        </div>
+      </div>
+    </footer>
+  );
+};
+```
+
+## Responsive Behavior
+
+<Steps>
+  <Step title="Large Screens (lg+)">
+    - 12-column grid layout
+    - 5 columns for brand, 7 for links
+    - Horizontal bottom bar
+  </Step>
+  <Step title="Medium Screens (md)">
+    - 3-column link grid
+    - Stacked brand section
+  </Step>
+  <Step title="Small Screens">
+    - Single column layout
+    - 2-column link grid
+    - Stacked bottom bar
+  </Step>
+</Steps>
+
+## Typography
+
+- **Brand Name**: Font size `3xl`, serif font, bold
+- **Section Headings**: `10px` uppercase, wide tracking (`tracking-widest`)
+- **Links**: `text-sm` font medium for main links
+- **Copyright**: `10px` uppercase, extra wide tracking
+
+## Accessibility Features
+
+- All external links use `target="_blank"` with `rel="noopener noreferrer"`
+- Semantic `<footer>` element with `id="contacto"` for anchor navigation
+- Clear hover states on all interactive elements
+- Descriptive link text
+
+## Dependencies
+
+- `@fortawesome/react-fontawesome` - Icon library
+- `@fortawesome/free-solid-svg-icons` - Paw icon
+- `@fortawesome/free-brands-svg-icons` - Social media icons
